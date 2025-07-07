@@ -11,6 +11,10 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+app.get('/', (req, res) => {
+  res.send('🚀 VMudra Backend is running!');
+});
+
 app.use('/api', routes)
 
 app.use(errorHandler)

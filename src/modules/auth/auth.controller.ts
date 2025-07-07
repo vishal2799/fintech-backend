@@ -1,6 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service';
 
+export const checkHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+    res.status(200).json({message: 'Successful check'});
+}
+
 export const loginHandler = (
   req: Request,
   res: Response,
