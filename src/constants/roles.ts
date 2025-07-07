@@ -1,0 +1,8 @@
+export enum Roles {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  WL_ADMIN = 'WL_ADMIN',
+  SD = 'SUPER_DISTRIBUTOR',
+  D = 'DISTRIBUTOR',
+  R = 'RETAILER',
+  API_CLIENT = 'API_CLIENT'
+}
