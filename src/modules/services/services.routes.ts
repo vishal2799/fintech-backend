@@ -4,12 +4,13 @@ import { validate } from '../../middlewares/validate'
 import { createServiceSchema, updateServiceSchema } from './services.schema'
 import { requireAuth } from '../../middlewares/requireAuth'
 import { roleCheck } from '../../middlewares/roleCheck'
+import { checkPermission } from '../../middlewares/permissions'
 // import { createServiceSchema, updateServiceSchema } from '@/modules/service/service.schema'
 // import { checkPermission } from '@/middlewares/checkPermission'
 
 const router = express.Router()
 
-router.get('/', requireAuth, roleCheck(['SUPER_ADMIN']), serviceController.getAll)
+router.get('/', requireAuth, roleCheck(['SUPER_ADMIN']), checkPermission('services:read'), serviceController.getAll)
 
 router.post(
   '/',
