@@ -5,12 +5,14 @@ import { createServiceSchema, updateServiceSchema } from './services.schema'
 import { requireAuth } from '../../middlewares/requireAuth'
 import { roleCheck } from '../../middlewares/roleCheck'
 import { checkPermission } from '../../middlewares/permissions'
+import { Roles } from '../../constants/roles'
+import { PERMISSIONS } from '../../constants/permissions'
 // import { createServiceSchema, updateServiceSchema } from '@/modules/service/service.schema'
 // import { checkPermission } from '@/middlewares/checkPermission'
 
 const router = express.Router()
 
-router.get('/', requireAuth, roleCheck(['SUPER_ADMIN']), checkPermission('services:read'), serviceController.getAll)
+router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), checkPermission(PERMISSIONS.SERVICES_READ), serviceController.getAll)
 
 router.post(
   '/',

@@ -8,7 +8,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "drizzle:push": "drizzle-kit push",
     "drizzle:generate": "drizzle-kit generate",
-    "seed": "ts-node src/scripts/seed2.ts",
+    "seed": "ts-node src/scripts/assignPermissions.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
