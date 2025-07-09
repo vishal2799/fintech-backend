@@ -1,34 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
+// import { AuthRequest } from '../types/express'; // your extended type
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
-export interface AuthPayload {
-  userId: string;
-  tenantId: string;
-  roles: string[];
-}
-
-export const requireAuth = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Missing or invalid token' });
-    return;
-  }
-
-  const token = authHeader.split(' ')[1];
-
+export const requireAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as AuthPayload;
-    (req as any).user = payload;
-      console.log('Decoded payload:', payload);
-    next();
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+      tenantId: string;
+      roleNames: string[];
+      permissions: string[];
+    };
+
+    req.user = {
+      id: decoded.userId,
+      tenantId: decoded.tenantId,
+      roleNames: decoded.roleNames,
+      permissions: decoded.permissions,
+    };
+
+    return next();
   } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Invalid token' });
   }
 };

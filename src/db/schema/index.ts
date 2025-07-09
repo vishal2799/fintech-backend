@@ -6,3 +6,4 @@ export * from './roles';
 export * from './rolePermissions';
 export * from './permissions';
 export * from './sessions';
+export * from './services';

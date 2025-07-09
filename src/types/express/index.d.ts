@@ -3,9 +3,10 @@ import 'express';
 declare module 'express' {
   interface Request {
     user?: {
-      userId: string;
+      id: string;
       tenantId: string;
-      roles: string[];
+      roleNames: string[];
+      permissions: string[];
     };
   }
 }

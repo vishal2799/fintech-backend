@@ -1,11 +1,10 @@
 import { Router } from 'express';
-import { checkHandler, loginHandler, meHandler } from './auth.controller';
-import { requireAuth } from '../../middlewares/requireAuth';
+import { checkHandler, login, meHandler } from './auth.controller';
 
 const router = Router();
 
 router.get('/check', checkHandler);
-router.post('/login', loginHandler);
-router.get('/me', requireAuth, meHandler); // ✅ Protected route
+router.post('/login', login as any);
+router.get('/me', meHandler); // ✅ Protected route
 
 export default router;
