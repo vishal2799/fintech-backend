@@ -86,7 +86,7 @@ export const updateUserService = async (req: Request, res: Response) => {
 
 // Retailer self view
 export const listMyServices = async (req: Request, res: Response) => {
-  const userID = req?.user?.userId;
+  const userID = req?.user?.id;
   const tenantId = req?.user?.tenantId;
   if (!userID || !tenantId) {
     res.status(400).json({ error: 'Missing userId or tenantId' });
