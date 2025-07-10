@@ -4,5 +4,6 @@ export enum Roles {
   SD = 'SUPER_DISTRIBUTOR',
   D = 'DISTRIBUTOR',
   R = 'RETAILER',
-  API_CLIENT = 'API_CLIENT'
+  API_CLIENT = 'API_CLIENT',
+  EMPLOYEE = 'EMPLOYEE',
 }

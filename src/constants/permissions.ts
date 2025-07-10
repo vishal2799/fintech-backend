@@ -13,7 +13,17 @@ export const PERMISSIONS = {
 
   // Roles & Permissions
   ROLES_MANAGE: 'roles:manage',
+  ROLES_READ: 'roles:read',
+  ROLES_CREATE: 'roles:create',
+  ROLES_UPDATE: 'roles:update',
+  ROLES_DELETE: 'roles:delete',
   PERMISSIONS_MANAGE: 'permissions:manage',
+
+  // Employees
+  EMPLOYEES_CREATE: 'employees:create',
+  EMPLOYEES_READ: 'employees:read',
+  EMPLOYEES_UPDATE: 'employees:update',
+  EMPLOYEES_DELETE: 'employees:delete',
 
   // Services
   SERVICES_READ: 'services:read',
