@@ -1,8 +1,8 @@
-import express from 'express'
+import express, { ErrorRequestHandler } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import routes from './routes'
-import { errorHandler } from './middlewares/errorHandler'
+import globalErrorHandler from './middlewares/errorHandler'
 
 dotenv.config()
 
@@ -17,6 +17,10 @@ app.get('/', (req, res) => {
 
 app.use('/api', routes)
 
-app.use(errorHandler)
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Not Found' });
+});
+
+app.use(globalErrorHandler);
 
 export default app
