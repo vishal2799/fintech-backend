@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { checkHandler, login, meHandler } from './auth.controller';
+import { login, logout, refresh, } from './auth.controller';
 
 const router = Router();
 
-router.get('/check', checkHandler);
-router.post('/login', login as any);
-router.get('/me', meHandler); // ✅ Protected route
+router.post('/login', login);
+router.post('/refresh', refresh);
+router.post('/logout', logout);
+// router.get('/me', meHandler); // ✅ Protected route
 
 export default router;

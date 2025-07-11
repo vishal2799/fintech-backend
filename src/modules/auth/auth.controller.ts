@@ -1,187 +1,205 @@
-import { Request, Response, NextFunction } from 'express';
-import { AuthService } from './auth.service';
-import { db } from '../../db';
-import { eq, inArray } from 'drizzle-orm';
-import { permissions, rolePermissions, roles, sessions, userRoles, users } from '../../db/schema';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt';
+// src/controllers/auth.controller.ts
+import { Request, Response } from 'express';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { successHandler } from '../../utils/responseHandler';
+import * as AuthService from './auth.service';
 
-export const checkHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-    res.status(200).json({message: 'Successful check'});
-}
-
-export const login = async (req:Request, res:Response) => {
+export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (!user) {
-    res.status(401).json({ message: 'Invalid credentials' });
-    return
-  }
+  const result = await AuthService.login(email, password);
+  return successHandler(res, result, 'Logged in');
+});
 
-  if (!user.passwordHash) {
-    res.status(401).json({ message: 'Invalid credentials' });
-    return
-  }
-  const match = await bcrypt.compare(password, user.passwordHash);
-  if (!match) {
- res.status(401).json({ message: 'Invalid credentials' });
-return  
-}
-
-// ✅ Fetch role names
-  const roleResults = await db
-    .select({ name: roles.name, id: roles.id })
-    .from(userRoles)
-    .innerJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(userRoles.userId, user.id));
-
-  const roleIds = roleResults.map(r => r.id);
-  const roleNames = roleResults.map(r => r.name); // ['SUPER_ADMIN', 'WL_ADMIN']
-
-  // ✅ Get permissions for those roles
-  const permissionResults = await db
-    .select({ name: permissions.name })
-    .from(rolePermissions)
-    .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
-    .where(inArray(rolePermissions.roleId, roleIds))
-
-  const permissionNames = permissionResults.map(p => p.name); // ['services:read', 'services:update']
-console.log(permissionResults)
-  const payload = { userId: user.id, tenantId: user.tenantId, roleNames, permissions: permissionNames };
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = generateRefreshToken(payload);
-
-  await db.insert(sessions).values({ userId: user.id, token: refreshToken, tenantId: user.tenantId, expiresAt: new Date(Date.now() + 7 * 86400000) });
-
-  return res.json({ accessToken, refreshToken });
-};
-
-export const refresh = async (req:Request, res:Response) => {
+export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.body;
-  // validate refresh token
-  const payload = verifyRefreshToken(token) as any;
+  const result = await AuthService.refreshTokens(token);
+  return successHandler(res, result, 'Token refreshed');
+});
 
-  const session = await db.query.sessions.findFirst({
-    where: eq(sessions.token, token)
-  });
-
-  if (!session) return res.status(401).json({ message: 'Session not found' });
-
-  const accessToken = generateAccessToken({ userId: payload.userId, tenantId: payload.tenantId });
-
-  return res.json({ accessToken });
-};
-
-export const logout = async (req:Request, res:Response) => {
+export const logout = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.body;
-  await db.delete(sessions).where(eq(sessions.token, token));
-  return res.json({ message: 'Logged out' });
-};
+  await AuthService.logout(token);
+  return successHandler(res, null, 'Logged out');
+});
 
-// export async function login(email: string, password: string) {
+
+// import { Request, Response, NextFunction } from 'express';
+// import { AuthService } from './auth.service';
+// import { db } from '../../db';
+// import { eq, inArray } from 'drizzle-orm';
+// import { permissions, rolePermissions, roles, sessions, userRoles, users } from '../../db/schema';
+// import jwt from 'jsonwebtoken';
+// import bcrypt from 'bcrypt';
+// import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt';
+
+
+// export const login = async (req:Request, res:Response) => {
+//   const { email, password } = req.body;
 //   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+//   if (!user) {
+//     res.status(401).json({ message: 'Invalid credentials' });
+//     return
+//   }
 
-//   if (!user) throw new Error('Invalid credentials');
+//   if (!user.passwordHash) {
+//     res.status(401).json({ message: 'Invalid credentials' });
+//     return
+//   }
+//   const match = await bcrypt.compare(password, user.passwordHash);
+//   if (!match) {
+//  res.status(401).json({ message: 'Invalid credentials' });
+// return  
+// }
 
-//   // TODO: validate password
-
-//   // 🔽 Fetch assigned roles
-//   const userRoleJoins = await db
-//     .select({
-//       roleName: roles.name,
-//     })
+// // ✅ Fetch role names
+//   const roleResults = await db
+//     .select({ name: roles.name, id: roles.id })
 //     .from(userRoles)
 //     .innerJoin(roles, eq(userRoles.roleId, roles.id))
 //     .where(eq(userRoles.userId, user.id));
 
-//   const roleNames = userRoleJoins.map((r) => r.roleName);
+//   const roleIds = roleResults.map(r => r.id);
+//   const roleNames = roleResults.map(r => r.name); // ['SUPER_ADMIN', 'WL_ADMIN']
 
-//   // 🔑 Generate JWT with roles
-//   const token = jwt.sign(
-//     {
-//       sub: user.id,
-//       tenantId: user.tenantId,
-//       roles: roleNames,
-//     },
-//     process.env.JWT_SECRET!,
-//     { expiresIn: '15m' }
-//   );
+//   // ✅ Get permissions for those roles
+//   const permissionResults = await db
+//     .select({ name: permissions.name })
+//     .from(rolePermissions)
+//     .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
+//     .where(inArray(rolePermissions.roleId, roleIds))
 
-//   return { token };
-//   res.json({
-//         accessToken: token,
-//         user: {
-//           id: user.id,
-//           name: user.name,
-//           email: user.email,
-//           roles
-//         }
-// }
+//   const permissionNames = permissionResults.map(p => p.name); // ['services:read', 'services:update']
+// console.log(permissionResults)
+//   const payload = { userId: user.id, tenantId: user.tenantId, roleNames, permissions: permissionNames };
+//   const accessToken = generateAccessToken(payload);
+//   const refreshToken = generateRefreshToken(payload);
 
-// export const loginHandler = (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ): void => {
-//   (async () => {
-//     const { email, password } = req.body;
+//   await db.insert(sessions).values({ userId: user.id, token: refreshToken, tenantId: user.tenantId, expiresAt: new Date(Date.now() + 7 * 86400000) });
 
-//     if (!email || !password) {
-//       return res.status(400).json({ error: 'Email and password are required' });
-//     }
-
-//     try {
-//       const user = await AuthService.validateCredentials(email, password);
-
-//       if (!user.passwordHash) {
-//         return res.status(400).json({ error: 'User has no password set' });
-//       }
-
-//       const roles = await AuthService.getUserRoles(user.id);
-
-//       const payload = {
-//         userId: user.id,
-//         tenantId: user.tenantId,
-//         roles
-//       };
-
-//       const token = AuthService.generateToken(payload);
-
-//       await AuthService.logSession({
-//         userId: user.id,
-//         tenantId: user.tenantId,
-//         token,
-//         ipAddress: req.ip,
-//         userAgent: req.headers['user-agent'] || ''
-//       });
-
-//       res.json({
-//         accessToken: token,
-//         user: {
-//           id: user.id,
-//           name: user.name,
-//           email: user.email,
-//           roles
-//         }
-//       });
-//     } catch (err: any) {
-//       res.status(401).json({ error: err.message || 'Unauthorized' });
-//     }
-//   })().catch(next); // Ensure internal errors pass to Express
+//   return res.json({ accessToken, refreshToken });
 // };
 
-export const meHandler = (req: Request, res: Response): void => {
-  const user = (req as any).user;
+// export const refresh = async (req:Request, res:Response) => {
+//   const { token } = req.body;
+//   // validate refresh token
+//   const payload = verifyRefreshToken(token) as any;
 
-  if (!user) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return; // ✅ prevent further execution
-  }
+//   const session = await db.query.sessions.findFirst({
+//     where: eq(sessions.token, token)
+//   });
 
-  res.json({ user });
-};
+//   if (!session) return res.status(401).json({ message: 'Session not found' });
+
+//   const accessToken = generateAccessToken({ userId: payload.userId, tenantId: payload.tenantId });
+
+//   return res.json({ accessToken });
+// };
+
+// export const logout = async (req:Request, res:Response) => {
+//   const { token } = req.body;
+//   await db.delete(sessions).where(eq(sessions.token, token));
+//   return res.json({ message: 'Logged out' });
+// };
+
+// // export async function login(email: string, password: string) {
+// //   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+
+// //   if (!user) throw new Error('Invalid credentials');
+
+// //   // TODO: validate password
+
+// //   // 🔽 Fetch assigned roles
+// //   const userRoleJoins = await db
+// //     .select({
+// //       roleName: roles.name,
+// //     })
+// //     .from(userRoles)
+// //     .innerJoin(roles, eq(userRoles.roleId, roles.id))
+// //     .where(eq(userRoles.userId, user.id));
+
+// //   const roleNames = userRoleJoins.map((r) => r.roleName);
+
+// //   // 🔑 Generate JWT with roles
+// //   const token = jwt.sign(
+// //     {
+// //       sub: user.id,
+// //       tenantId: user.tenantId,
+// //       roles: roleNames,
+// //     },
+// //     process.env.JWT_SECRET!,
+// //     { expiresIn: '15m' }
+// //   );
+
+// //   return { token };
+// //   res.json({
+// //         accessToken: token,
+// //         user: {
+// //           id: user.id,
+// //           name: user.name,
+// //           email: user.email,
+// //           roles
+// //         }
+// // }
+
+// // export const loginHandler = (
+// //   req: Request,
+// //   res: Response,
+// //   next: NextFunction
+// // ): void => {
+// //   (async () => {
+// //     const { email, password } = req.body;
+
+// //     if (!email || !password) {
+// //       return res.status(400).json({ error: 'Email and password are required' });
+// //     }
+
+// //     try {
+// //       const user = await AuthService.validateCredentials(email, password);
+
+// //       if (!user.passwordHash) {
+// //         return res.status(400).json({ error: 'User has no password set' });
+// //       }
+
+// //       const roles = await AuthService.getUserRoles(user.id);
+
+// //       const payload = {
+// //         userId: user.id,
+// //         tenantId: user.tenantId,
+// //         roles
+// //       };
+
+// //       const token = AuthService.generateToken(payload);
+
+// //       await AuthService.logSession({
+// //         userId: user.id,
+// //         tenantId: user.tenantId,
+// //         token,
+// //         ipAddress: req.ip,
+// //         userAgent: req.headers['user-agent'] || ''
+// //       });
+
+// //       res.json({
+// //         accessToken: token,
+// //         user: {
+// //           id: user.id,
+// //           name: user.name,
+// //           email: user.email,
+// //           roles
+// //         }
+// //       });
+// //     } catch (err: any) {
+// //       res.status(401).json({ error: err.message || 'Unauthorized' });
+// //     }
+// //   })().catch(next); // Ensure internal errors pass to Express
+// // };
+
+// export const meHandler = (req: Request, res: Response): void => {
+//   const user = (req as any).user;
+
+//   if (!user) {
+//     res.status(401).json({ error: 'Unauthorized' });
+//     return; // ✅ prevent further execution
+//   }
+
+//   res.json({ user });
+// };
