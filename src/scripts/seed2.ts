@@ -2,6 +2,7 @@ import { db } from '../db';
 
 import bcrypt from 'bcrypt';
 import { permissions, rolePermissions, roles, tenants, userRoles, users } from '../db/schema';
+import { hashPassword } from '../utils/hash';
 
 const runSeed = async () => {
   console.log('🌱 Seeding database...');
@@ -14,7 +15,7 @@ const runSeed = async () => {
   }).returning();
 
   // 2. Create Super Admin user
-  const passwordHash = await bcrypt.hash('admin123', 10);
+  const passwordHash = await hashPassword('admin123');
   const [superAdmin] = await db.insert(users).values({
     tenantId: tenant.id,
     name: 'Super Admin',

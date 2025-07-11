@@ -17,9 +17,9 @@ app.get('/', (req, res) => {
 
 app.use('/api', routes)
 
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Not Found' });
-});
+// app.use('*', (req, res) => {
+//   res.status(404).json({ message: 'Not Found' });
+// });
 
 app.use(globalErrorHandler);
 

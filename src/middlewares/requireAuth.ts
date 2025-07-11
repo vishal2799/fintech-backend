@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 // import { AuthRequest } from '../types/express'; // your extended type
 import jwt from 'jsonwebtoken';
+import { verifyAccessToken } from '../utils/jwt';
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -10,7 +11,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    const decoded = verifyAccessToken(token) as {
       userId: string;
       tenantId: string;
       roleNames: string[];
