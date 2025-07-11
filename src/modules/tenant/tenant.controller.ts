@@ -1,39 +1,20 @@
 // src/controllers/tenant.controller.ts
-import { eq } from 'drizzle-orm';
 import { Request, Response } from 'express';
-import { db } from '../../db';
-import { tenants } from '../../db/schema';
+import * as TenantService from './tenant.service';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { successHandler } from '../../utils/responseHandler';
 
-export const createTenant = async (req: Request, res: Response) => {
-  const { name, slug, logoUrl, themeColor } = req.body;
+export const createTenant = asyncHandler(async (req: Request, res: Response) => {
+  const created = await TenantService.createTenant(req.body);
+  return successHandler(res, created, 'Tenant created');
+});
 
-  const exists = await db.query.tenants.findFirst({ where: eq(tenants.slug, slug) });
-  if (exists) {
-    res.status(400).json({ message: 'Slug already exists' });
-    return
-  }
-  const tenant = await db.insert(tenants).values({
-    name,
-    slug,
-    logoUrl,
-    themeColor
-  }).returning();
+export const listTenants = asyncHandler(async (_req: Request, res: Response) => {
+  const data = await TenantService.listTenants();
+  return successHandler(res, data);
+});
 
-  res.status(201).json(tenant[0]);
-};
-
-export const listTenants = async (_req: Request, res: Response) => {
-  const result = await db.query.tenants.findMany();
-  res.json(result);
-};
-
-export const updateTenant = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name, logoUrl, themeColor, status } = req.body;
-
-  await db.update(tenants)
-    .set({ name, logoUrl, themeColor, status })
-    .where(eq(tenants.id, id));
-
-  res.json({ message: 'Tenant updated' });
-};
+export const updateTenant = asyncHandler(async (req: Request, res: Response) => {
+  const result = await TenantService.updateTenant(req.params.id, req.body);
+  return successHandler(res, result, 'Tenant updated');
+});
