@@ -9,9 +9,12 @@ export const createTenant = asyncHandler(async (req: Request, res: Response) => 
   return successHandler(res, created, 'Tenant created');
 });
 
-export const listTenants = asyncHandler(async (_req: Request, res: Response) => {
-  const data = await TenantService.listTenants();
-  return successHandler(res, data);
+export const listTenants = asyncHandler(async (req: Request, res: Response) => {
+  const page    = parseInt(req.query.page as string)    || 1;
+  const perPage = parseInt(req.query.perPage as string) || 10;
+
+  const result = await TenantService.listTenants({ page, perPage });
+  return successHandler(res, result);
 });
 
 export const updateTenant = asyncHandler(async (req: Request, res: Response) => {
