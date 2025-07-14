@@ -56,6 +56,24 @@ const payload = Object.fromEntries(
   // return { message: 'Tenant updated' };
 };
 
+type STATUS =  'ACTIVE' | 'DISABLED';
+
+export const updateTenantStatus = async(id: string, status: STATUS) => {
+
+    if (!['ACTIVE', 'DISABLED'].includes(status)) throw new AppError('Invalid status', 400);
+
+
+  const existing = await db.query.tenants.findFirst({
+    where: eq(tenants.id, id)
+  });
+
+  if (!existing) throw new AppError('Tenant not found', 404)
+
+  const updatedStatus =  await db.update(tenants).set({ status }).where(eq(tenants.id, id));
+
+  return updatedStatus;
+}
+
 
 export const listAllTenants = async () => {
   return await db.select().from(tenants);

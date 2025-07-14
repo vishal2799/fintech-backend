@@ -12,5 +12,6 @@ const router = Router();
 router.patch('/:id', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenant);
 router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listAllTenants);
 router.post('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.createTenant);
+router.patch('/:id/status', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenantStatus);
 
 export default router;

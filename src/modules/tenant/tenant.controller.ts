@@ -50,3 +50,14 @@ export const listTenantsAdvanced = asyncHandler(async (req: Request, res: Respon
 
   return successHandler(res, result);
 });
+
+export const updateTenantStatus = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  
+  const result = await TenantService.updateTenantStatus(id, status);
+  return successHandler(res, result, 'Tenant status updated')
+
+  // return res.json({ message: 'Status updated', data: { id, status } });
+});
