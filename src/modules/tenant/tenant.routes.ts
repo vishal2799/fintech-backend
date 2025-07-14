@@ -7,8 +7,10 @@ import { Roles } from '../../constants/roles';
 
 const router = Router();
 
-router.post('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.createTenant);
-router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenants);
+// router.get('/all', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenants);
+// router.get('/advanced', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenantsAdvanced);
 router.patch('/:id', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenant);
+router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listAllTenants);
+router.post('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.createTenant);
 
 export default router;
