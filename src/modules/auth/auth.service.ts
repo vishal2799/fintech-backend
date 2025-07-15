@@ -46,6 +46,8 @@ export const login = async (email: string, password: string) => {
   const permissionNames = permRows.map(p => p.name);
 
   const payload = {
+    name: user.name,
+    email: user.email,
     userId: user.id,
     tenantId: user.tenantId,
     roleNames,
@@ -93,6 +95,8 @@ export const refreshTokens = async (token: string) => {
   const permissionNames = permRows.map(p => p.name);
 
   const newPayload = {
+    name: payload.name,
+    email: payload.email,
     userId: payload.userId,
     tenantId: payload.tenantId,
     roleNames,
