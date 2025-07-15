@@ -32,8 +32,14 @@ export const deleteService = async (id: string) => {
 // Super Admin
 export const getAllGlobalServices = () => db.select().from(services);
 
-export const updateGlobalService = (serviceId: string, data: Partial<typeof services.$inferInsert>) =>
-  db.update(services).set(data).where(eq(services.id, serviceId)).returning();
+export const updateGlobalService = async (serviceId: string, data: Partial<typeof services.$inferInsert>) => {
+  const [updated] = await db.update(services)
+    .set(data)
+    .where(eq(services.id, serviceId))
+    .returning();
+  return updated;
+};
+
 
 // White-Label Admin
 export const getTenantServices = (tenantId: string) =>

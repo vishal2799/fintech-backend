@@ -12,7 +12,8 @@ import { PERMISSIONS } from '../../constants/permissions'
 
 const router = express.Router()
 
-router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), checkPermission(PERMISSIONS.SERVICES_READ), serviceController.getAll)
+// router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), checkPermission(PERMISSIONS.SERVICES_READ), serviceController.getAll)
+router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), serviceController.getAll)
 
 router.post(
   '/',
