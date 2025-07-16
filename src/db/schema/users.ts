@@ -1,10 +1,11 @@
-import { boolean, integer, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { AnyPgColumn, boolean, integer, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { tenants } from "./tenants";
 
 // ==================== USERS =====================
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   tenantId: uuid('tenant_id').notNull().references(() => tenants.id),
+  parentId: uuid("parent_id").references((): AnyPgColumn => users.id),
   name: varchar('name', { length: 100 }),
   email: varchar('email', { length: 150 }),
   mobile: varchar('mobile', { length: 20 }),

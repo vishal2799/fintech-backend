@@ -101,38 +101,72 @@ export const deleteWLAdmin = async (id: string) => {
   return { id };
 };
 
-// export const createWLAdminUser = async (data: {
-//   name: string;
-//   email: string;
-//   mobile: string;
-//   password: string;
-//   tenantId: string;
-// }) => {
-//   const { name, email, mobile, password, tenantId } = data;
 
-//   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
-//   if (existing) throw new AppError('User already exists', 400);
+export const getUsersByRole = async (tenantId: string, roleName: string) => {
+  const role = await db.query.roles.findFirst({ where: eq(roles.name, roleName) });
+  if (!role) throw new AppError('Role not found', 400);
 
-//   const hashedPassword = await hashPassword(password);
-//   const userId = uuidv4();
+  const rows = await db
+    .select()
+    .from(users)
+    .innerJoin(userRoles, eq(users.id, userRoles.userId))
+    .where(
+      and(
+        eq(users.tenantId, tenantId),
+        eq(userRoles.roleId, role.id)
+      )
+    );
 
-//   await db.insert(users).values({
-//     id: userId,
-//     name,
-//     email,
-//     mobile,
-//     tenantId,
-//     passwordHash: hashedPassword,
-//     isVerified: true
-//   });
+  return rows.map((r) => r.users);
+};
 
-//   const role = await db.query.roles.findFirst({ where: eq(roles.name, Roles.WL_ADMIN) });
-//   if (!role) throw new AppError('WL Admin role not found', 400);
+export const createUserWithRole = async ({
+  tenantId,
+  parentId = null,
+  name,
+  email,
+  mobile,
+  passwordHash,
+  role,
+}: {
+  tenantId: string;
+  parentId: string | null;
+  name: string;
+  email: string;
+  mobile: string;
+  passwordHash: string;
+  role: string;
+}) => {
+  const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
+  if (existing) throw new AppError('User already exists', 400);
 
-//   await db.insert(userRoles).values({
-//     userId,
-//     roleId: role.id
-//   });
+  const userId = uuidv4();
+  await db.insert(users).values({
+    id: userId,
+    tenantId,
+    parentId: parentId ?? undefined,
+    name,
+    email,
+    mobile,
+    passwordHash,
+    isVerified: true,
+  });
 
-//   return { message: 'WL Admin user created' };
-// };
+  const roleRec = await db.query.roles.findFirst({ where: eq(roles.name, role) });
+  if (!roleRec) throw new AppError('Role not found', 400);
+
+  await db.insert(userRoles).values({ userId, roleId: roleRec.id });
+
+  return { message: 'User created' };
+};
+
+export const updateUserBasic = async (id: string, data: Partial<typeof users.$inferInsert>) => {
+  const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();
+  return updated;
+};
+
+export const deleteUser = async (id: string) => {
+  const [deleted] = await db.delete(users).where(eq(users.id, id)).returning();
+  return deleted;
+};
+

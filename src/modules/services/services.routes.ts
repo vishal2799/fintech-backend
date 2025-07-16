@@ -12,6 +12,10 @@ import { PERMISSIONS } from '../../constants/permissions'
 
 const router = express.Router()
 
+// White-label admin (tenant) routes
+router.get('/tenant', serviceController.listTenantServices);
+router.patch('/tenant/:id', serviceController.updateTenantService);
+
 // router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), checkPermission(PERMISSIONS.SERVICES_READ), serviceController.getAll)
 router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), serviceController.getAll)
 
@@ -34,10 +38,6 @@ router.delete('/:id', serviceController.remove)
 // Super Admin routes
 router.get('/admin/services', serviceController.listServicesGlobal);
 router.patch('/admin/services/:id', serviceController.updateGlobalService);
-
-// White-label admin (tenant) routes
-router.get('/admin/tenant/services', serviceController.listTenantServices);
-router.patch('/admin/tenant/services/:id', serviceController.updateTenantService);
 
 // SD/D/R user-specific routes (by WL admin)
 router.get('/admin/users/:userId/services', serviceController.listUserServices);
