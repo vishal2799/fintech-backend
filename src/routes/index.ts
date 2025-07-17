@@ -6,12 +6,13 @@ import usersRoutes from '../modules/users/users.routes';
 import sdRoutes from '../modules/super-distributor/super-distributor.routes';
 import dRoutes from '../modules/distributors/distributors.routes';
 import rRoutes from '../modules/retailers/retailers.routes';
+import { withAuditContext } from '../middlewares/auditContext';
 
 const router = Router()
 
 router.use('/auth', authRoutes)
 router.use('/services', servicesRoutes)
-router.use('/admin/tenants', tenantRoutes)
+router.use('/admin/tenants', withAuditContext('TENANTS_MANAGEMENT'), tenantRoutes)
 router.use('/admin/users', usersRoutes)
 router.use('/wl-admin/super-distributor', sdRoutes)
 router.use('/wl-admin/distributors', dRoutes)

@@ -8,5 +8,9 @@ declare module 'express' {
       roleNames: string[];
       permissions: string[];
     };
+    auditContext?: {
+      module?: string;
+      [key: string]: any;
+    };
   }
 }
