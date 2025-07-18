@@ -10,22 +10,26 @@ export const auditLogger = (req: Request, res: Response, next: NextFunction) => 
   res.json = function (body: any) {
     const user = req.user;
 
+    const verb = methodMappers[req.method] || req.method;
+    const resource = req.auditContext?.resource || 'Resource';
+    const activity = `${verb} ${resource}`;
+
     const auditEntry = {
       url: req.originalUrl,
       method: req.method,
-      activity: `${methodMappers[req.method] || req.method} ${req.originalUrl.split('/').pop() || ''}`,
-      params: JSON.stringify(req.params),
-      query: JSON.stringify(req.query),
-      payload: JSON.stringify(makeSensitiveFieldsSafe(req.body)),
-      response: JSON.stringify(makeSensitiveFieldsSafe(body)),
+      activity,
+      params: truncate(req.params),
+      query: truncate(req.query),
+      payload: truncate(makeSensitiveFieldsSafe(req.body)),
+      response: truncate(makeSensitiveFieldsSafe(body)),
       actorId: user?.id || null,
-      actorType: user?.roleNames[0] || 'UNKNOWN',
+      actorType: user?.roleNames?.[0] || 'UNKNOWN',
       module: req.auditContext?.module || 'GENERAL',
       tenantId: user?.tenantId || null,
       createdAt: new Date(),
     };
 
-    // Insert audit log in background, non-blocking
+    // Non-blocking insert
     db.insert(auditLogs)
       .values(auditEntry)
       .catch((err) => console.error('Audit log error:', err));
@@ -35,3 +39,12 @@ export const auditLogger = (req: Request, res: Response, next: NextFunction) => 
 
   next();
 };
+
+function truncate(value: any, maxLength = 1000): string {
+  try {
+    const str = typeof value === 'string' ? value : JSON.stringify(value);
+    return str.length > maxLength ? str.slice(0, maxLength) + '... [truncated]' : str;
+  } catch (err) {
+    return '[unserializable]';
+  }
+}

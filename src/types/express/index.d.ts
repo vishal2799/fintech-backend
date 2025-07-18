@@ -1,3 +1,5 @@
+// types/express/index.d.ts or any global declaration file
+
 import 'express';
 
 declare module 'express' {
@@ -10,6 +12,7 @@ declare module 'express' {
     };
     auditContext?: {
       module?: string;
+      resource?: string;
       [key: string]: any;
     };
   }
