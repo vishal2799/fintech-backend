@@ -29,7 +29,7 @@ router.patch(
 router.delete(
   '/:id',
   requireAuth,
-  checkPermission('permissions:delete'),
+  // checkPermission('permissions:delete'),
   PermissionController.deletePermission
 );
 

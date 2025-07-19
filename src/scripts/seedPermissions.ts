@@ -1,21 +1,43 @@
 import { PERMISSIONS } from '../constants/permissions';
 import { db } from '../db';
 import { permissions } from '../db/schema';
+import { eq } from 'drizzle-orm';
+
+// Utility to decide scope per permission name
+function getPermissionScope(name: string): 'PLATFORM' | 'TENANT' | 'BOTH' {
+  // Add logic here if some permissions are PLATFORM-only or TENANT-only
+  const platformOnlyModules = ['tenants', 'apiClients'];
+  const tenantOnlyModules = ['funds'];
+
+  const module = name.split(':')[0];
+
+  if (platformOnlyModules.includes(module)) return 'PLATFORM';
+  if (tenantOnlyModules.includes(module)) return 'TENANT';
+
+  return 'BOTH'; // Default case
+}
 
 async function seedPermissions() {
-  const allPermissions = Object.values(PERMISSIONS).map((name) => ({
-    name,
-    module: name.split(':')[0],
-    description: `${name} permission`,
+  console.log('🌱 Seeding permissions (skipping existing)...');
+
+  const permissionValues = Object.values(PERMISSIONS).map((permName) => ({
+    name: permName,
+    module: permName.split(':')[0], // e.g., 'users:create' → 'users'
+    description: `${permName} permission`,
+    scope: getPermissionScope(permName), // 'PLATFORM' | 'TENANT' | 'BOTH'
   }));
 
-  console.log('🌱 Seeding permissions (skip existing)...');
+  for (const perm of permissionValues) {
+    const exists = await db.query.permissions.findFirst({
+      where: eq(permissions.name, perm.name),
+    });
 
-  for (const perm of allPermissions) {
-    await db
-      .insert(permissions)
-      .values(perm)
-      .onConflictDoNothing(); // requires 'name' to be unique in schema
+    if (!exists) {
+      await db.insert(permissions).values(perm);
+      console.log(`✅ Inserted: ${perm.name}`);
+    } else {
+      console.log(`⚠️ Skipped (already exists): ${perm.name}`);
+    }
   }
 
   console.log('✅ Done: Permission seeding complete');
