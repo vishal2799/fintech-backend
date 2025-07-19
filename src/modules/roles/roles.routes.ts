@@ -21,7 +21,7 @@ router.get('/', RolesController.listRoles);
 // ✅ Get permissions assigned to a role
 router.get('/:roleId/permissions', RolesController.getRolePermissions);
 
-// ✅ Update role basic info (name, description)
+// ✅ Update role with permissions
 router.patch('/:id', RolesController.updateRole);
 
 // ✅ Update role permissions

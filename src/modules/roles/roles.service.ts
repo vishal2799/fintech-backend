@@ -84,7 +84,7 @@ export const getPermissionsForRole = async (roleId: string) => {
     .where(eq(rolePermissions.roleId, roleId));
 };
 
-export const updateRole = async (
+export const updateBasicRole = async (
   roleId: string,
   data: { name?: string; description?: string }
 ) => {
@@ -148,6 +148,71 @@ export const updateRolePermissions = async (req: any, roleId: string, permission
 
   return { message: 'Permissions updated' };
 };
+
+
+export const updateRole = async (
+  req: any,
+  roleId: string,
+  data: { name?: string; description?: string; permissionIds?: string[] }
+) => {
+  const tenantId = req.user?.tenantId;
+  const isPlatformUser = req.user?.roleNames?.includes('SUPER_ADMIN');
+  const { name, description, permissionIds } = data;
+
+  if (!tenantId) throw new AppError('Invalid tenant context', 403);
+
+  // Validate role existence and ownership
+  const role = await db.query.roles.findFirst({ where: eq(roles.id, roleId) });
+  if (!role) throw new AppError('Role not found', 404);
+
+  if (role.tenantId !== tenantId) {
+    throw new AppError('Forbidden: Cannot update roles from another tenant', 403);
+  }
+
+  // ✅ Update basic info if present
+  if (name || description) {
+    await db.update(roles)
+      .set({ name, description })
+      .where(eq(roles.id, roleId));
+  }
+
+  // ✅ If permissionIds is provided, update them with scope validation
+  if (Array.isArray(permissionIds)) {
+    const roleScope = role.scope;
+
+    const foundPermissions = await db.query.permissions.findMany({
+      where: inArray(permissions.id, permissionIds),
+    });
+
+    const invalidPerms = foundPermissions.filter((p) => {
+      return roleScope === 'PLATFORM'
+        ? !(p.scope === 'PLATFORM' || p.scope === 'BOTH')
+        : !(p.scope === 'TENANT' || p.scope === 'BOTH');
+    });
+
+    if (invalidPerms.length > 0) {
+      throw new AppError(
+        `Invalid permission scopes for ${roleScope}: ${invalidPerms.map(p => p.name).join(', ')}`,
+        400
+      );
+    }
+
+    await db.delete(rolePermissions).where(eq(rolePermissions.roleId, roleId));
+
+    if (permissionIds.length > 0) {
+      await db.insert(rolePermissions).values(
+        permissionIds.map((permissionId) => ({
+          id: uuidv4(),
+          roleId,
+          permissionId,
+        }))
+      );
+    }
+  }
+
+  return { message: 'Role updated successfully' };
+};
+
 
 
 // export const createRoleWithPermissions = async (req: any) => {
