@@ -7,8 +7,8 @@ import { asyncHandler } from '../../utils/asyncHandler';
 
 export const listSuperDistributors = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
-  const users = await UserService.getUsersByStaticRole(tenantId, 'SD');
-  return successHandler(res, users);
+  const users = await UserService.getUsersByStaticRole(tenantId, Roles.SD);
+  return successHandler(res, {data: users, message: 'SD Fetched successfully', status: 200});
 });
 
 export const createSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
@@ -23,56 +23,20 @@ export const createSuperDistributor = asyncHandler(async (req: Request, res: Res
     email,
     mobile,
     passwordHash,
-    staticRole: 'SD',
+    staticRole: Roles.SD,
   });
 
-  return successHandler(res, result, 'Super Distributor created', 201);
+  return successHandler(res, {data: result, message: 'SD Created successfully', status: 201});
 });
 
 export const updateSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updated = await UserService.updateUserBasic(id, req.body);
-  return successHandler(res, updated, 'Super Distributor updated');
+    return successHandler(res, {data: updated, message: 'SD Updated successfully', status: 200});
 });
 
 export const deleteSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const deleted = await UserService.deleteUser(id);
-  return successHandler(res, deleted, 'Super Distributor deleted');
+  return successHandler(res, {data: deleted, message: 'SD Deleted successfully', status: 200});
 });
-
-// export const listSuperDistributors = asyncHandler(async (req: Request, res: Response) => {
-//   const tenantId = req.user?.tenantId!;
-//   const users = await UserService.getUsersByRole(tenantId, Roles.SD);
-//   return successHandler(res, users);
-// });
-
-// export const createSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
-//   const tenantId = req.user?.tenantId!;
-//   const { name, email, mobile, password } = req.body;
-
-//   const passwordHash = await hashPassword(password);
-//   const result = await UserService.createUserWithRole({
-//     tenantId,
-//     parentId: null,
-//     name,
-//     email,
-//     mobile,
-//     passwordHash,
-//     role: Roles.SD,
-//   });
-
-//   return successHandler(res, result, 'Super Distributor created', 201);
-// });
-
-// export const updateSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const updated = await UserService.updateUserBasic(id, req.body);
-//   return successHandler(res, updated, 'Super Distributor updated');
-// });
-
-// export const deleteSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const deleted = await UserService.deleteUser(id);
-//   return successHandler(res, deleted, 'Super Distributor deleted');
-// });

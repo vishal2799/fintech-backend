@@ -8,8 +8,8 @@ import { hashPassword } from '../../utils/hash';
 
 export const listRetailers = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
-  const users = await UserService.getUsersByStaticRole(tenantId, 'R');
-  return successHandler(res, users);
+  const users = await UserService.getUsersByStaticRole(tenantId, Roles.R);
+  return successHandler(res, {data: users, message: 'Retailers Fetched successfully', status: 200});
 });
 
 export const createRetailer = asyncHandler(async (req: Request, res: Response) => {
@@ -24,56 +24,20 @@ export const createRetailer = asyncHandler(async (req: Request, res: Response) =
     email,
     mobile,
     passwordHash,
-    staticRole: 'R',
+    staticRole: Roles.R,
   });
 
-  return successHandler(res, result, 'Retailer created', 201);
+  return successHandler(res, {data: result, message: 'Retailer Created successfully', status: 201});
 });
 
 export const updateRetailer = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updated = await UserService.updateUserBasic(id, req.body);
-  return successHandler(res, updated, 'Retailer updated');
+  return successHandler(res, {data: updated, message: 'Retailer Updated successfully', status: 200});
 });
 
 export const deleteRetailer = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const deleted = await UserService.deleteUser(id);
-  return successHandler(res, deleted, 'Retailer deleted');
+  return successHandler(res, {data: deleted, message: 'Retailer Deleted successfully', status: 200});
 });
-
-// export const listRetailers = asyncHandler(async (req: Request, res: Response) => {
-//   const tenantId = req.user?.tenantId!;
-//   const users = await UserService.getUsersByRole(tenantId, Roles.R);
-//   return successHandler(res, users);
-// });
-
-// export const createRetailer = asyncHandler(async (req: Request, res: Response) => {
-//   const tenantId = req.user?.tenantId!;
-//   const { name, email, mobile, password, parentId } = req.body;
-
-//   const passwordHash = await hashPassword(password);
-//   const result = await UserService.createUserWithRole({
-//     tenantId,
-//     parentId,
-//     name,
-//     email,
-//     mobile,
-//     passwordHash,
-//     role: Roles.R,
-//   });
-
-//   return successHandler(res, result, 'Retailer created', 201);
-// });
-
-// export const updateRetailer = asyncHandler(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const updated = await UserService.updateUserBasic(id, req.body);
-//   return successHandler(res, updated, 'Retailer updated');
-// });
-
-// export const deleteRetailer = asyncHandler(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const deleted = await UserService.deleteUser(id);
-//   return successHandler(res, deleted, 'Retailer deleted');
-// });

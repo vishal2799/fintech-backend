@@ -26,7 +26,7 @@ export const listLogs = asyncHandler(async (req: Request, res: Response) => {
     tenantId: isSuperAdmin ? undefined : user.tenantId,
   });
 
-  return successHandler(res, result);
+  return successHandler(res, {data: result, message: 'Audit Logs Fetched successfully', status: 200});
 });
 
 function toSortOrder(value: any): 'asc' | 'desc' {
