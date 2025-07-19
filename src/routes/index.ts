@@ -2,6 +2,7 @@ import { Router } from 'express'
 import authRoutes from '../modules/auth/auth.routes'
 import rolesRoutes from '../modules/roles/roles.routes'
 import permissionRoutes from '../modules/permissions/permissions.routes';
+import employeesRoutes from '../modules/employees/employees.routes';
 import servicesRoutes from '../modules/services/services.routes';
 import tenantRoutes from '../modules/tenant/tenant.routes';
 import sdRoutes from '../modules/super-distributor/super-distributor.routes';
@@ -16,6 +17,7 @@ const router = Router()
 router.use('/auth', authRoutes)
 router.use('/permissions', permissionRoutes)
 router.use('/roles', rolesRoutes)
+router.use('/employees', employeesRoutes)
 router.use('/services', withAuditContext('SERVICE_MANAGEMENT', 'Service'), servicesRoutes)
 router.use('/super-admin/wl-admin', withAuditContext('WLADMIN_MANAGEMENT', 'WL Admin'), wladminRoutes)
 router.use('/admin/tenants', withAuditContext('TENANTS_MANAGEMENT', 'Tenant'), tenantRoutes)

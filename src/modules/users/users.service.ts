@@ -103,19 +103,50 @@ export const deleteWLAdmin = async (id: string) => {
 
 type StaticRole = 'SUPER_ADMIN' | 'WL_ADMIN' | 'SD' | 'D' | 'R' | 'EMPLOYEE';
 
-export const getUsersByStaticRole = async (tenantId: string, staticRole: StaticRole) => {
+export const getUsersByStaticRole = async (
+  tenantId: string,
+  staticRole: StaticRole
+) => {
+  if (staticRole === 'EMPLOYEE') {
+    const rows = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        mobile: users.mobile,
+        staticRole: users.staticRole,
+        tenantId: users.tenantId,
+        isEmployee: users.isEmployee,
+        roleId: roles.id,
+        roleName: roles.name,
+      })
+      .from(users)
+      .leftJoin(userRoles, eq(userRoles.userId, users.id))
+      .leftJoin(roles, eq(roles.id, userRoles.roleId))
+      .where(
+        and(
+          eq(users.tenantId, tenantId),
+          eq(users.staticRole, 'EMPLOYEE')
+        )
+      );
+
+    return rows.map((u) => ({
+      ...u,
+      role: u.roleId ? { id: u.roleId, name: u.roleName } : undefined,
+    }));
+  }
+
+  // for other static roles (SD/D/R/etc.), basic query
   const rows = await db
     .select()
     .from(users)
     .where(
-      and(
-        eq(users.tenantId, tenantId),
-        eq(users.staticRole, staticRole)
-      )
+      and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole))
     );
 
   return rows;
 };
+
 
 export const createUserWithStaticRole = async ({
   tenantId,
@@ -168,7 +199,6 @@ export const getUsersByRole = async (tenantId: string, roleName: StaticRole) => 
   return rows;
 };
 
-// ✅ Create a user with either static or dynamic role
 export const createUserWithRole = async ({
   tenantId,
   parentId = null,
@@ -176,16 +206,16 @@ export const createUserWithRole = async ({
   email,
   mobile,
   passwordHash,
-  role,
+  roleId,
   isEmployee = false,
 }: {
   tenantId: string;
-  parentId: string | null;
+  parentId?: string | null;
   name: string;
   email: string;
   mobile: string;
   passwordHash: string;
-  role: StaticRole;
+  roleId: string;
   isEmployee?: boolean;
 }) => {
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
@@ -203,11 +233,11 @@ export const createUserWithRole = async ({
     passwordHash,
     isVerified: true,
     isEmployee,
-    staticRole: role,
+    staticRole: Roles.EMPLOYEE,
   });
 
   if (isEmployee) {
-    const roleRec = await db.query.roles.findFirst({ where: eq(roles.name, role) });
+    const roleRec = await db.query.roles.findFirst({ where: eq(roles.id, roleId) });
     if (!roleRec) throw new AppError('Dynamic role not found', 400);
 
     await db.insert(userRoles).values({
@@ -219,6 +249,7 @@ export const createUserWithRole = async ({
 
   return { message: 'User created' };
 };
+
 
 // ✅ Update user basic info
 export const updateUserBasic = async (id: string, data: Partial<typeof users.$inferInsert>) => {
@@ -234,6 +265,50 @@ export const deleteUser = async (id: string) => {
   const [deleted] = await db.delete(users).where(eq(users.id, id)).returning();
   return deleted;
 };
+
+export const updateUserWithRole = async ({
+  id,
+  name,
+  email,
+  mobile,
+  roleId,
+  isEmployee = false,
+}: {
+  id: string;
+  name?: string;
+  email?: string;
+  mobile?: string;
+  roleId?: string;
+  isEmployee?: boolean;
+}) => {
+  const updates: any = {};
+  if (name) updates.name = name;
+  if (email) updates.email = email;
+  if (mobile) updates.mobile = mobile;
+
+  // Update basic fields
+  const [updatedUser] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+
+  if (!updatedUser) throw new AppError('User not found', 404);
+
+  // Handle employee dynamic role update
+  if (isEmployee && roleId) {
+    const roleRec = await db.query.roles.findFirst({ where: eq(roles.id, roleId) });
+    if (!roleRec) throw new AppError('Role not found', 400);
+
+    // Delete old role mapping and insert new
+    await db.delete(userRoles).where(eq(userRoles.userId, id));
+
+    await db.insert(userRoles).values({
+      userId: id,
+      roleId: roleRec.id,
+      assignedBy: updatedUser.parentId ?? null,
+    });
+  }
+
+  return updatedUser;
+};
+
 
 
 // export const getUsersByRole = async (tenantId: string, roleName: string) => {

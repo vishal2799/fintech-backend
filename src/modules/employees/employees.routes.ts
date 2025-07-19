@@ -10,34 +10,34 @@ import { checkPermission } from '../../middlewares/permissions';
 const router = Router();
 
 router.post(
-  '/admin/employees',
+  '/',
   requireAuth,
-  roleCheck([Roles.WL_ADMIN]),
-  checkPermission(PERMISSIONS.EMPLOYEES_CREATE),
+  // roleCheck([Roles.WL_ADMIN]),
+  // checkPermission(PERMISSIONS.EMPLOYEES_CREATE),
   EmployeeController.createEmployee
 );
 
 router.get(
-  '/admin/employees',
+  '/',
   requireAuth,
-  roleCheck([Roles.WL_ADMIN]),
-  checkPermission(PERMISSIONS.EMPLOYEES_READ),
+  // roleCheck([Roles.WL_ADMIN]),
+  // checkPermission(PERMISSIONS.EMPLOYEES_READ),
   EmployeeController.listEmployees
 );
 
 router.put(
-  '/admin/employees/:id',
+  '/:id',
   requireAuth,
-  roleCheck([Roles.WL_ADMIN]),
-  checkPermission(PERMISSIONS.EMPLOYEES_UPDATE),
+  // roleCheck([Roles.WL_ADMIN]),
+  // checkPermission(PERMISSIONS.EMPLOYEES_UPDATE),
   EmployeeController.updateEmployee
 );
 
 router.delete(
-  '/admin/employees/:id',
+  '/:id',
   requireAuth,
-  roleCheck([Roles.WL_ADMIN]),
-  checkPermission(PERMISSIONS.EMPLOYEES_DELETE),
+  // roleCheck([Roles.WL_ADMIN]),
+  // checkPermission(PERMISSIONS.EMPLOYEES_DELETE),
   EmployeeController.deleteEmployee
 );
 
