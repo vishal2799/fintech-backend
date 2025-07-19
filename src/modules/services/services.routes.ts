@@ -7,14 +7,13 @@ import { roleCheck } from '../../middlewares/roleCheck'
 import { checkPermission } from '../../middlewares/permissions'
 import { Roles } from '../../constants/roles'
 import { PERMISSIONS } from '../../constants/permissions'
-// import { createServiceSchema, updateServiceSchema } from '@/modules/service/service.schema'
-// import { checkPermission } from '@/middlewares/checkPermission'
+
 
 const router = express.Router()
 
 // White-label admin (tenant) routes
-router.get('/tenant', serviceController.listTenantServices);
-router.patch('/tenant/:id', serviceController.updateTenantService);
+// router.get('/tenant', serviceController.listTenantServices);
+// router.patch('/tenant/:id', serviceController.updateTenantService);
 
 // router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), checkPermission(PERMISSIONS.SERVICES_READ), serviceController.getAll)
 router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), serviceController.getAll)
@@ -35,16 +34,16 @@ router.put(
 
 router.delete('/:id', serviceController.remove)
 
-// Super Admin routes
-router.get('/admin/services', serviceController.listServicesGlobal);
-router.patch('/admin/services/:id', serviceController.updateGlobalService);
+// // Super Admin routes
+// router.get('/admin/services', serviceController.listServicesGlobal);
+// router.patch('/admin/services/:id', serviceController.updateGlobalService);
 
-// SD/D/R user-specific routes (by WL admin)
-router.get('/admin/users/:userId/services', serviceController.listUserServices);
-router.patch('/admin/users/:userId/services/:serviceId', serviceController.updateUserService);
+// // SD/D/R user-specific routes (by WL admin)
+// router.get('/admin/users/:userId/services', serviceController.listUserServices);
+// router.patch('/admin/users/:userId/services/:serviceId', serviceController.updateUserService);
 
-// Retailer self-view
-router.get('/me/services', serviceController.listMyServices);
+// // Retailer self-view
+// router.get('/me/services', serviceController.listMyServices);
 
 // router.get('/', checkPermission('service', 'read'), serviceController.getAllServices)
 

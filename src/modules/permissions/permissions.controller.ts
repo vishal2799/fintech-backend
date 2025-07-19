@@ -8,7 +8,7 @@ import { asyncHandler } from '../../utils/asyncHandler';
  */
 export const getAllPermissions = asyncHandler(async (_req: Request, res: Response) => {
   const perms = await PermissionService.getAllPermissions();
-  return successHandler(res, perms);
+  return successHandler(res, {data: perms, message: 'Permissions Fetched successfully', status: 200});
 });
 
 /**
@@ -17,7 +17,7 @@ export const getAllPermissions = asyncHandler(async (_req: Request, res: Respons
 export const createPermission = asyncHandler(async (req: Request, res: Response) => {
   const { name, module, description } = req.body;
   const created = await PermissionService.createPermission({ name, module, description });
-  return successHandler(res, created, 'Permission created', 201);
+  return successHandler(res, {data: created, message: 'Permission Created successfully', status: 201});
 });
 
 /**
@@ -25,7 +25,7 @@ export const createPermission = asyncHandler(async (req: Request, res: Response)
  */
 export const updatePermission = asyncHandler(async (req: Request, res: Response) => {
   const updated = await PermissionService.updatePermission(req.params.id, req.body);
-  return successHandler(res, updated, 'Permission updated');
+  return successHandler(res, {data: updated, message: 'Permission Updated successfully', status: 200});
 });
 
 /**
@@ -33,5 +33,5 @@ export const updatePermission = asyncHandler(async (req: Request, res: Response)
  */
 export const deletePermission = asyncHandler(async (req: Request, res: Response) => {
   await PermissionService.deletePermission(req.params.id);
-  return successHandler(res, null, 'Permission deleted', 204);
+  return successHandler(res, {data: null, message: 'Permission Deleted successfully', status: 200});
 });
