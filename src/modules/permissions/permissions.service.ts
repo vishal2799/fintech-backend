@@ -49,9 +49,11 @@ export const updatePermission = async (
   id: string,
   updates: Partial<typeof permissions.$inferInsert>
 ) => {
+    const { createdAt, ...sanitized } = updates;
+
   const [updated] = await db
     .update(permissions)
-    .set(updates)
+    .set(sanitized)
     .where(eq(permissions.id, id))
     .returning();
 
