@@ -7,18 +7,18 @@ import * as AuthService from './auth.service';
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const result = await AuthService.login(email, password);
-  return successHandler(res, result, 'Logged in');
+  return successHandler(res, {data: result, message: 'Logged-In successfully', status: 200});
 });
 
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.body;
   const result = await AuthService.refreshTokens(token);
-  return successHandler(res, result, 'Token refreshed');
+  return successHandler(res, {data: result, message: 'Token refreshed successfully', status: 200});
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.body;
   await AuthService.logout(token);
-  return successHandler(res, null, 'Logged out');
+  return successHandler(res, {data: null, message: 'Logged-Out successfully', status: 200});
 });
 

@@ -1,16 +1,19 @@
 import { Response } from 'express';
 
-// ✅ Success response
-export const successHandler = (
-  res: Response,
-  data: any,
+export const successHandler = (res: Response, {
+  data,
   message = 'Success',
   status = 200
-) => {
+}: {
+  data: any;
+  message?: string;
+  status?: number;
+}) => {
   return res.status(status).json({
     success: true,
     message,
     data,
+    status
   });
 };
 

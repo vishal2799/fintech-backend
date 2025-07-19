@@ -7,7 +7,7 @@ import { hashPassword } from '../../utils/hash';
 export const listWLAdmins = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
   const users = await UserService.getUsersByStaticRole(tenantId, 'WL_ADMIN');
-  return successHandler(res, users);
+    return successHandler(res, {data: users, message: 'Wl Admin Fetched successfully', status: 201});
 });
 
 export const createWLAdmin = asyncHandler(async (req: Request, res: Response) => {
@@ -25,17 +25,17 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     staticRole: 'WL_ADMIN',
   });
 
-  return successHandler(res, result, 'WL Admin created', 201);
+  return successHandler(res, {data: result, message: 'Wl Admin Created successfully', status: 201});
 });
 
 export const updateWLAdmin = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updated = await UserService.updateUserBasic(id, req.body);
-  return successHandler(res, updated, 'WL Admin updated');
+    return successHandler(res, {data: updated, message: 'Wl Admin Updated successfully', status: 200});
 });
 
 export const deleteWLAdmin = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const deleted = await UserService.deleteUser(id);
-  return successHandler(res, deleted, 'WL Admin deleted');
+  return successHandler(res, {data: deleted, message: 'Wl Admin Deleted successfully', status: 200});
 });

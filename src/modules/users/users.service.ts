@@ -222,9 +222,11 @@ export const createUserWithRole = async ({
 
 // ✅ Update user basic info
 export const updateUserBasic = async (id: string, data: Partial<typeof users.$inferInsert>) => {
-  const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();
+  const { createdAt, updatedAt, ...sanitized } = data;
+  const [updated] = await db.update(users).set(sanitized).where(eq(users.id, id)).returning();
   return updated;
 };
+
 
 // ✅ Delete user (and userRoles if employee)
 export const deleteUser = async (id: string) => {
