@@ -26,35 +26,44 @@ export const login = async (email: string, password: string) => {
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) throw new AppError('Invalid credentials', 401);
 
-  // ► Roles
-  const roleRows = await db
-    .select({ id: roles.id, name: roles.name })
-    .from(userRoles)
-    .innerJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(userRoles.userId, user.id));
+  let roleNames: string[] = [];
+  let permissionNames: (string | null)[] = [];
 
-  const roleIds = roleRows.map(r => r.id);
-  const roleNames = roleRows.map(r => r.name);
+  if (user.isEmployee) {
+    // Dynamic role-based for employee
+    const roleRows = await db
+      .select({ id: roles.id, name: roles.name })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(userRoles.userId, user.id));
 
-  // ► Permissions
-  const permRows = await db
-    .select({ name: permissions.name })
-    .from(rolePermissions)
-    .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
-    .where(inArray(rolePermissions.roleId, roleIds));
+    const roleIds = roleRows.map(r => r.id);
+    roleNames = roleRows.map(r => r.name);
 
-  const permissionNames = permRows.map(p => p.name);
+    const permRows = await db
+      .select({ name: permissions.name })
+      .from(rolePermissions)
+      .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
+      .where(inArray(rolePermissions.roleId, roleIds));
+
+    permissionNames = permRows.map(p => p.name);
+  } else {
+    // Static role-based (SD, D, R, WL_ADMIN)
+    roleNames = [user.staticRole || 'UNKNOWN'];
+    permissionNames = []; // handled via middleware
+  }
 
   const payload = {
     name: user.name,
     email: user.email,
     userId: user.id,
     tenantId: user.tenantId,
+    staticRole: user.staticRole || undefined, // ✅ add this
     roleNames,
     permissions: permissionNames,
   };
 
-  const accessToken  = generateAccessToken(payload);
+  const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
   await db.insert(sessions).values({
@@ -62,7 +71,7 @@ export const login = async (email: string, password: string) => {
     userId: user.id,
     tenantId: user.tenantId,
     token: refreshToken,
-    expiresAt: new Date(Date.now() + 7 * 86_400_000), // 7 days
+    expiresAt: new Date(Date.now() + 7 * 86400000),
   });
 
   return { accessToken, refreshToken };
@@ -76,29 +85,42 @@ export const refreshTokens = async (token: string) => {
   });
   if (!session) throw new AppError('Session not found', 401);
 
-  /* 🔄  Fetch latest roles / permissions in case they changed  */
-  const roleRows = await db
-    .select({ id: roles.id, name: roles.name })
-    .from(userRoles)
-    .innerJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(userRoles.userId, payload.userId));
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, payload.userId),
+  });
+  if (!user) throw new AppError('User not found', 404);
 
-  const roleIds = roleRows.map(r => r.id);
-  const roleNames = roleRows.map(r => r.name);
+  let roleNames: string[] = [];
+  let permissionNames: (string | null)[] = [];
 
-  const permRows = await db
-    .select({ name: permissions.name })
-    .from(rolePermissions)
-    .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
-    .where(inArray(rolePermissions.roleId, roleIds));
+  if (user.isEmployee) {
+    const roleRows = await db
+      .select({ id: roles.id, name: roles.name })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(userRoles.userId, user.id));
 
-  const permissionNames = permRows.map(p => p.name);
+    const roleIds = roleRows.map(r => r.id);
+    roleNames = roleRows.map(r => r.name);
+
+    const permRows = await db
+      .select({ name: permissions.name })
+      .from(rolePermissions)
+      .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
+      .where(inArray(rolePermissions.roleId, roleIds));
+
+    permissionNames = permRows.map(p => p.name);
+  } else {
+    roleNames = [user.staticRole || 'UNKNOWN'];
+    permissionNames = [];
+  }
 
   const newPayload = {
-    name: payload.name,
-    email: payload.email,
-    userId: payload.userId,
-    tenantId: payload.tenantId,
+    name: user.name,
+    email: user.email,
+    userId: user.id,
+    tenantId: user.tenantId,
+    staticRole: user.staticRole || undefined, // ✅ add this
     roleNames,
     permissions: permissionNames,
   };
@@ -112,71 +134,95 @@ export const logout = async (token: string) => {
 };
 
 
-// import { db } from '../../db';
-// import { users, sessions, userRoles, roles } from '../../db/schema';
-// import { eq } from 'drizzle-orm';
-// import jwt from 'jsonwebtoken';
-// import { v4 as uuidv4 } from 'uuid';
-// import { comparePassword } from '../../utils/hash';
+// export const login = async (email: string, password: string) => {
+//   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+//   if (!user || !user.passwordHash)
+//     throw new AppError('Invalid credentials', 401);
 
-// const JWT_SECRET = process.env.JWT_SECRET!;
+//   const match = await bcrypt.compare(password, user.passwordHash);
+//   if (!match) throw new AppError('Invalid credentials', 401);
 
-// export const AuthService = {
-//   async validateCredentials(email: string, password: string) {
-//     const [user] = await db.select().from(users).where(eq(users.email, email));
+//   // ► Roles
+//   const roleRows = await db
+//     .select({ id: roles.id, name: roles.name })
+//     .from(userRoles)
+//     .innerJoin(roles, eq(userRoles.roleId, roles.id))
+//     .where(eq(userRoles.userId, user.id));
 
-//     if (!user || user.status !== 'ACTIVE') {
-//       throw new Error('Invalid credentials or inactive account');
-//     }
+//   const roleIds = roleRows.map(r => r.id);
+//   const roleNames = roleRows.map(r => r.name);
 
-//     if (!user.passwordHash) {
-//   throw new Error('Password not set for user');
-//    }
+//   // ► Permissions
+//   const permRows = await db
+//     .select({ name: permissions.name })
+//     .from(rolePermissions)
+//     .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
+//     .where(inArray(rolePermissions.roleId, roleIds));
 
-//     const isMatch = await comparePassword(password, user.passwordHash);
-//     if (!isMatch) {
-//       throw new Error('Invalid credentials');
-//     }
+//   const permissionNames = permRows.map(p => p.name);
 
-//     return user;
-//   },
+//   const payload = {
+//     name: user.name,
+//     email: user.email,
+//     userId: user.id,
+//     tenantId: user.tenantId,
+//     roleNames,
+//     permissions: permissionNames,
+//   };
 
-//   async getUserRoles(userId: string) {
-//     const roleMap = await db
-//       .select({ roleId: userRoles.roleId, roleName: roles.name })
-//       .from(userRoles)
-//       .leftJoin(roles, eq(userRoles.roleId, roles.id))
-//       .where(eq(userRoles.userId, userId));
+//   const accessToken  = generateAccessToken(payload);
+//   const refreshToken = generateRefreshToken(payload);
 
-//     return roleMap.map((r) => r.roleName);
-//   },
+//   await db.insert(sessions).values({
+//     id: uuidv4(),
+//     userId: user.id,
+//     tenantId: user.tenantId,
+//     token: refreshToken,
+//     expiresAt: new Date(Date.now() + 7 * 86_400_000), // 7 days
+//   });
 
-//   generateToken(payload: object) {
-//     return jwt.sign(payload, JWT_SECRET, { expiresIn: '2h' });
-//   },
+//   return { accessToken, refreshToken };
+// };
 
-//   async logSession({
-//     userId,
-//     tenantId,
-//     token,
-//     ipAddress,
-//     userAgent
-//   }: {
-//     userId: string;
-//     tenantId: string;
-//     token: string;
-//     ipAddress?: string;
-//     userAgent?: string;
-//   }) {
-//     await db.insert(sessions).values({
-//       id: uuidv4(),
-//       userId,
-//       tenantId,
-//       token,
-//       ipAddress,
-//       userAgent,
-//       isActive: true,
-//       expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000)
-//     });
-//   }
+// export const refreshTokens = async (token: string) => {
+//   const payload = verifyRefreshToken(token) as any;
+
+//   const session = await db.query.sessions.findFirst({
+//     where: eq(sessions.token, token),
+//   });
+//   if (!session) throw new AppError('Session not found', 401);
+
+//   /* 🔄  Fetch latest roles / permissions in case they changed  */
+//   const roleRows = await db
+//     .select({ id: roles.id, name: roles.name })
+//     .from(userRoles)
+//     .innerJoin(roles, eq(userRoles.roleId, roles.id))
+//     .where(eq(userRoles.userId, payload.userId));
+
+//   const roleIds = roleRows.map(r => r.id);
+//   const roleNames = roleRows.map(r => r.name);
+
+//   const permRows = await db
+//     .select({ name: permissions.name })
+//     .from(rolePermissions)
+//     .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
+//     .where(inArray(rolePermissions.roleId, roleIds));
+
+//   const permissionNames = permRows.map(p => p.name);
+
+//   const newPayload = {
+//     name: payload.name,
+//     email: payload.email,
+//     userId: payload.userId,
+//     tenantId: payload.tenantId,
+//     roleNames,
+//     permissions: permissionNames,
+//   };
+
+//   const accessToken = generateAccessToken(newPayload);
+//   return { accessToken };
+// };
+
+// export const logout = async (token: string) => {
+//   await db.delete(sessions).where(eq(sessions.token, token));
 // };

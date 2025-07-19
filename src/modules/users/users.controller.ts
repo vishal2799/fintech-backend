@@ -35,8 +35,4 @@ export const deleteWLAdmin = asyncHandler(async (req, res) => {
   return successHandler(res, result, 'WL Admin deleted');
 });
 
-// export const createWLAdminUser = asyncHandler(async (req: Request, res: Response) => {
-//   const result = await AdminUserService.createWLAdminUser(req.body);
-//   return successHandler(res, result, result.message);
-// });
 

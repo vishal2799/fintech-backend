@@ -9,6 +9,8 @@ declare module 'express' {
       tenantId: string;
       roleNames: string[];
       permissions: string[];
+      staticRole?: 'SUPER_ADMIN' | 'WL_ADMIN' | 'SD' | 'D' | 'R' | 'EMPLOYEE';
+      isEmployee?: boolean;
     };
     auditContext?: {
       module?: string;

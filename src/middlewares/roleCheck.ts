@@ -10,20 +10,37 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 //   };
 // }
 
-export const roleCheck = (allowedRoles: string[]): RequestHandler => {
+export const roleCheck = (allowedStaticRoles: string[]): RequestHandler => {
   return ((req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-console.log(user);
-    if (!user || !user.roleNames) {
-      return res.status(401).json({ message: 'Unauthorized: No roles found' });
+
+    if (!user || !user.staticRole) {
+      return res.status(401).json({ message: 'Unauthorized: No static role found' });
     }
 
-    const hasRole = user.roleNames.some((role) => allowedRoles.includes(role));
-
-    if (!hasRole) {
-      return res.status(403).json({ message: 'Forbidden: Role mismatch' });
+    if (!allowedStaticRoles.includes(user.staticRole)) {
+      return res.status(403).json({ message: 'Forbidden: Static role not allowed' });
     }
 
     next();
   }) as RequestHandler;
 };
+
+
+// export const roleCheck = (allowedRoles: string[]): RequestHandler => {
+//   return ((req: Request, res: Response, next: NextFunction) => {
+//     const user = req.user;
+// console.log(user);
+//     if (!user || !user.roleNames) {
+//       return res.status(401).json({ message: 'Unauthorized: No roles found' });
+//     }
+
+//     const hasRole = user.roleNames.some((role) => allowedRoles.includes(role));
+
+//     if (!hasRole) {
+//       return res.status(403).json({ message: 'Forbidden: Role mismatch' });
+//     }
+
+//     next();
+//   }) as RequestHandler;
+// };

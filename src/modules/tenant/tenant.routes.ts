@@ -9,7 +9,7 @@ const router = Router();
 
 // router.get('/all', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenants);
 // router.get('/advanced', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenantsAdvanced);
-router.patch('/:id', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenant);
+router.patch('/:id', requireAuth, TenantController.updateTenant);
 router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listAllTenants);
 router.post('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.createTenant);
 router.patch('/:id/status', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenantStatus);

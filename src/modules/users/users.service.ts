@@ -101,25 +101,74 @@ export const deleteWLAdmin = async (id: string) => {
   return { id };
 };
 
+type StaticRole = 'SUPER_ADMIN' | 'WL_ADMIN' | 'SD' | 'D' | 'R' | 'EMPLOYEE';
 
-export const getUsersByRole = async (tenantId: string, roleName: string) => {
-  const role = await db.query.roles.findFirst({ where: eq(roles.name, roleName) });
-  if (!role) throw new AppError('Role not found', 400);
-
+export const getUsersByStaticRole = async (tenantId: string, staticRole: StaticRole) => {
   const rows = await db
     .select()
     .from(users)
-    .innerJoin(userRoles, eq(users.id, userRoles.userId))
     .where(
       and(
         eq(users.tenantId, tenantId),
-        eq(userRoles.roleId, role.id)
+        eq(users.staticRole, staticRole)
       )
     );
 
-  return rows.map((r) => r.users);
+  return rows;
 };
 
+export const createUserWithStaticRole = async ({
+  tenantId,
+  parentId = null,
+  name,
+  email,
+  mobile,
+  passwordHash,
+  staticRole,
+}: {
+  tenantId: string;
+  parentId?: string | null;
+  name: string;
+  email: string;
+  mobile: string;
+  passwordHash: string;
+  staticRole: StaticRole;
+}) => {
+  const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
+  if (existing) throw new AppError('User already exists', 400);
+
+  await db.insert(users).values({
+    id: uuidv4(),
+    tenantId,
+    parentId: parentId ?? undefined,
+    name,
+    email,
+    mobile,
+    passwordHash,
+    staticRole,
+    isVerified: true,
+  });
+
+  return { message: 'User created' };
+};
+
+
+// ✅ Get users by static role (e.g., 'RETAILER', 'DISTRIBUTOR')
+export const getUsersByRole = async (tenantId: string, roleName: StaticRole) => {
+  const rows = await db
+    .select()
+    .from(users)
+    .where(
+      and(
+        eq(users.tenantId, tenantId),
+        eq(users.staticRole, roleName)
+      )
+    );
+
+  return rows;
+};
+
+// ✅ Create a user with either static or dynamic role
 export const createUserWithRole = async ({
   tenantId,
   parentId = null,
@@ -128,6 +177,7 @@ export const createUserWithRole = async ({
   mobile,
   passwordHash,
   role,
+  isEmployee = false,
 }: {
   tenantId: string;
   parentId: string | null;
@@ -135,12 +185,14 @@ export const createUserWithRole = async ({
   email: string;
   mobile: string;
   passwordHash: string;
-  role: string;
+  role: StaticRole;
+  isEmployee?: boolean;
 }) => {
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
   if (existing) throw new AppError('User already exists', 400);
 
   const userId = uuidv4();
+
   await db.insert(users).values({
     id: userId,
     tenantId,
@@ -150,23 +202,103 @@ export const createUserWithRole = async ({
     mobile,
     passwordHash,
     isVerified: true,
+    isEmployee,
+    staticRole: role,
   });
 
-  const roleRec = await db.query.roles.findFirst({ where: eq(roles.name, role) });
-  if (!roleRec) throw new AppError('Role not found', 400);
+  if (isEmployee) {
+    const roleRec = await db.query.roles.findFirst({ where: eq(roles.name, role) });
+    if (!roleRec) throw new AppError('Dynamic role not found', 400);
 
-  await db.insert(userRoles).values({ userId, roleId: roleRec.id });
+    await db.insert(userRoles).values({
+      userId,
+      roleId: roleRec.id,
+      assignedBy: parentId ?? undefined,
+    });
+  }
 
   return { message: 'User created' };
 };
 
+// ✅ Update user basic info
 export const updateUserBasic = async (id: string, data: Partial<typeof users.$inferInsert>) => {
   const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();
   return updated;
 };
 
+// ✅ Delete user (and userRoles if employee)
 export const deleteUser = async (id: string) => {
+  await db.delete(userRoles).where(eq(userRoles.userId, id)); // only affects employee
   const [deleted] = await db.delete(users).where(eq(users.id, id)).returning();
   return deleted;
 };
+
+
+// export const getUsersByRole = async (tenantId: string, roleName: string) => {
+//   const role = await db.query.roles.findFirst({ where: eq(roles.name, roleName) });
+//   if (!role) throw new AppError('Role not found', 400);
+
+//   const rows = await db
+//     .select()
+//     .from(users)
+//     .innerJoin(userRoles, eq(users.id, userRoles.userId))
+//     .where(
+//       and(
+//         eq(users.tenantId, tenantId),
+//         eq(userRoles.roleId, role.id)
+//       )
+//     );
+
+//   return rows.map((r) => r.users);
+// };
+
+// export const createUserWithRole = async ({
+//   tenantId,
+//   parentId = null,
+//   name,
+//   email,
+//   mobile,
+//   passwordHash,
+//   role,
+// }: {
+//   tenantId: string;
+//   parentId: string | null;
+//   name: string;
+//   email: string;
+//   mobile: string;
+//   passwordHash: string;
+//   role: string;
+// }) => {
+//   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
+//   if (existing) throw new AppError('User already exists', 400);
+
+//   const userId = uuidv4();
+//   await db.insert(users).values({
+//     id: userId,
+//     tenantId,
+//     parentId: parentId ?? undefined,
+//     name,
+//     email,
+//     mobile,
+//     passwordHash,
+//     isVerified: true,
+//   });
+
+//   const roleRec = await db.query.roles.findFirst({ where: eq(roles.name, role) });
+//   if (!roleRec) throw new AppError('Role not found', 400);
+
+//   await db.insert(userRoles).values({ userId, roleId: roleRec.id });
+
+//   return { message: 'User created' };
+// };
+
+// export const updateUserBasic = async (id: string, data: Partial<typeof users.$inferInsert>) => {
+//   const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();
+//   return updated;
+// };
+
+// export const deleteUser = async (id: string) => {
+//   const [deleted] = await db.delete(users).where(eq(users.id, id)).returning();
+//   return deleted;
+// };
 
