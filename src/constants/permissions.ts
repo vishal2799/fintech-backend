@@ -18,6 +18,10 @@ export const PERMISSIONS = {
   ROLES_UPDATE: 'roles:update',
   ROLES_DELETE: 'roles:delete',
   PERMISSIONS_MANAGE: 'permissions:manage',
+  PERMISSIONS_READ: 'roles:read',
+  PERMISSIONS_CREATE: 'roles:create',
+  PERMISSIONS_UPDATE: 'roles:update',
+  PERMISSIONS_DELETE: 'roles:delete',
 
   // Employees
   EMPLOYEES_CREATE: 'employees:create',

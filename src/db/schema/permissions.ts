@@ -6,5 +6,6 @@ export const permissions = pgTable('permissions', {
   name: varchar('name', { length: 100 }),
   module: varchar('module', { length: 50 }),
   description: text('description'),
+  scope: varchar('scope', { enum: ['PLATFORM', 'TENANT', 'BOTH'] }).notNull().default('BOTH'),
   createdAt: timestamp('created_at').defaultNow()
 });

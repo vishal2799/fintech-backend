@@ -8,16 +8,21 @@ import { asyncHandler } from '../../utils/asyncHandler';
  */
 export const getAllPermissions = asyncHandler(async (_req: Request, res: Response) => {
   const perms = await PermissionService.getAllPermissions();
-  return successHandler(res, {data: perms, message: 'Permissions Fetched successfully', status: 200});
+    return successHandler(res, {data: perms, message: 'Permissions Fetched successfully', status: 200});
 });
 
 /**
  * POST /admin/permissions
  */
 export const createPermission = asyncHandler(async (req: Request, res: Response) => {
-  const { name, module, description } = req.body;
-  const created = await PermissionService.createPermission({ name, module, description });
-  return successHandler(res, {data: created, message: 'Permission Created successfully', status: 201});
+  const { name, module, description, scope } = req.body;
+
+  if (!name || !module || !scope) {
+    return res.status(400).json({ success: false, message: 'name, module, and scope are required' });
+  }
+
+  const created = await PermissionService.createPermission({ name, module, description, scope });
+    return successHandler(res, {data: created, message: 'Permission Created successfully', status: 201});
 });
 
 /**

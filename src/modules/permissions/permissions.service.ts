@@ -4,9 +4,13 @@ import { eq } from 'drizzle-orm';
 import { AppError } from '../../utils/AppError';
 
 /**
- * List every permission.
+ * List all permissions. Optional: filter by scope.
  */
-export const getAllPermissions = async () => {
+export const getAllPermissions = async (scopeFilter?: 'PLATFORM' | 'TENANT' | 'BOTH') => {
+  if (scopeFilter) {
+    return db.select().from(permissions).where(eq(permissions.scope, scopeFilter));
+  }
+
   return db.select().from(permissions);
 };
 
@@ -17,10 +21,12 @@ export const createPermission = async ({
   name,
   module,
   description,
+  scope,
 }: {
   name: string;
   module: string;
   description?: string;
+  scope: 'PLATFORM' | 'TENANT' | 'BOTH';
 }) => {
   const exists = await db.query.permissions.findFirst({
     where: eq(permissions.name, name),
@@ -28,7 +34,11 @@ export const createPermission = async ({
 
   if (exists) throw new AppError('Permission already exists', 409);
 
-  const [created] = await db.insert(permissions).values({ name, module, description }).returning();
+  const [created] = await db
+    .insert(permissions)
+    .values({ name, module, description, scope })
+    .returning();
+
   return created;
 };
 
@@ -39,7 +49,11 @@ export const updatePermission = async (
   id: string,
   updates: Partial<typeof permissions.$inferInsert>
 ) => {
-  const [updated] = await db.update(permissions).set(updates).where(eq(permissions.id, id)).returning();
+  const [updated] = await db
+    .update(permissions)
+    .set(updates)
+    .where(eq(permissions.id, id))
+    .returning();
 
   if (!updated) throw new AppError('Permission not found', 404);
   return updated;

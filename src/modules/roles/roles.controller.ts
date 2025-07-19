@@ -4,33 +4,69 @@ import { successHandler } from '../../utils/responseHandler';
 import { asyncHandler } from '../../utils/asyncHandler';
 import * as RoleService from './roles.service';
 
-export const createTenantRoleWithPermissions = asyncHandler(async (req: Request, res: Response) => {
-  const result = await RoleService.createTenantRoleWithPermissions(req);
-  return successHandler(res, {data: result, message: 'Role Created successfully', status: 201});
+export const createRole = asyncHandler(async (req: Request, res: Response) => {
+  const role = await RoleService.createRoleWithPermissions(req);
+  return successHandler(res, {data: role, message: 'Role Created successfully', status: 201});
 });
 
-export const listTenantRoles = asyncHandler(async (req: Request, res: Response) => {
-  const roles = await RoleService.listTenantRoles(req);
+export const listRoles = asyncHandler(async (req: Request, res: Response) => {
+  const roles = await RoleService.listRoles(req);
   return successHandler(res, {data: roles, message: 'Roles Fetched successfully', status: 200});
 });
 
-export const getPermissionsForRole = asyncHandler(async (req: Request, res: Response) => {
-  const permissions = await RoleService.getPermissionsForRole(req.params.roleId);
-  return successHandler(res, {data: permissions, message: 'Permissions Fetched successfully', status: 200});
-
+export const getRolePermissions = asyncHandler(async (req: Request, res: Response) => {
+  const { roleId } = req.params;
+  const perms = await RoleService.getPermissionsForRole(roleId);
+  return successHandler(res, {data: perms, message: 'Permissions Fetched successfully', status: 200});
 });
 
 export const updateRole = asyncHandler(async (req: Request, res: Response) => {
-  await RoleService.updateRole(req.params.id, req.body);
+  const { id } = req.params;
+  await RoleService.updateRole(id, req.body);
   return successHandler(res, {data: null, message: 'Role Updated successfully', status: 200});
 });
 
 export const deleteRole = asyncHandler(async (req: Request, res: Response) => {
-  await RoleService.deleteRole(req.params.id);
+  const { id } = req.params;
+  await RoleService.deleteRole(id);
   return successHandler(res, {data: null, message: 'Role Deleted successfully', status: 200});
 });
 
 export const updateRolePermissions = asyncHandler(async (req: Request, res: Response) => {
-  await RoleService.updateRolePermissions(req.params.roleId, req.body.permissionIds);
-  return successHandler(res, {data: null, message: 'Permissions Updated successfully', status: 200});
+  const { id } = req.params;
+  const { permissionIds } = req.body;
+  await RoleService.updateRolePermissions(req, id, permissionIds);
+  return successHandler(res, {data: null, message: 'Role Permissions Updated successfully', status: 200});
 });
+
+
+// export const createTenantRoleWithPermissions = asyncHandler(async (req: Request, res: Response) => {
+//   const result = await RoleService.createTenantRoleWithPermissions(req);
+//   return successHandler(res, {data: result, message: 'Role Created successfully', status: 201});
+// });
+
+// export const listTenantRoles = asyncHandler(async (req: Request, res: Response) => {
+//   const roles = await RoleService.listTenantRoles(req);
+//   return successHandler(res, {data: roles, message: 'Roles Fetched successfully', status: 200});
+// });
+
+// export const getPermissionsForRole = asyncHandler(async (req: Request, res: Response) => {
+//   const permissions = await RoleService.getPermissionsForRole(req.params.roleId);
+//   return successHandler(res, {data: permissions, message: 'Permissions Fetched successfully', status: 200});
+
+// });
+
+// export const updateRole = asyncHandler(async (req: Request, res: Response) => {
+//   await RoleService.updateRole(req.params.id, req.body);
+//   return successHandler(res, {data: null, message: 'Role Updated successfully', status: 200});
+// });
+
+// export const deleteRole = asyncHandler(async (req: Request, res: Response) => {
+//   await RoleService.deleteRole(req.params.id);
+//   return successHandler(res, {data: null, message: 'Role Deleted successfully', status: 200});
+// });
+
+// export const updateRolePermissions = asyncHandler(async (req: Request, res: Response) => {
+//   await RoleService.updateRolePermissions(req.params.roleId, req.body.permissionIds);
+//   return successHandler(res, {data: null, message: 'Permissions Updated successfully', status: 200});
+// });
