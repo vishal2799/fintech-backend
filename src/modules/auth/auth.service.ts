@@ -59,6 +59,7 @@ export const login = async (email: string, password: string) => {
     userId: user.id,
     tenantId: user.tenantId,
     staticRole: user.staticRole || undefined, // ✅ add this
+    isEmployee: user.isEmployee,
     roleNames,
     permissions: permissionNames,
   };
@@ -121,6 +122,7 @@ export const refreshTokens = async (token: string) => {
     userId: user.id,
     tenantId: user.tenantId,
     staticRole: user.staticRole || undefined, // ✅ add this
+    isEmployee: user.isEmployee,
     roleNames,
     permissions: permissionNames,
   };

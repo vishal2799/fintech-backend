@@ -16,23 +16,27 @@ const router = express.Router()
 // router.patch('/tenant/:id', serviceController.updateTenantService);
 
 // router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), checkPermission(PERMISSIONS.SERVICES_READ), serviceController.getAll)
-router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), serviceController.getAll)
+router.use(requireAuth);
+
+router.get('/', roleCheck([Roles.SUPER_ADMIN]), serviceController.getAll)
 
 router.post(
   '/',
-  validate(createServiceSchema),
+  roleCheck([Roles.SUPER_ADMIN]),
+  // validate(createServiceSchema),
   serviceController.create
 )
 
-router.get('/:id', serviceController.getById)
+router.get('/:id', roleCheck([Roles.SUPER_ADMIN]),serviceController.getById)
 
 router.put(
   '/:id',
-  validate(updateServiceSchema),
+  roleCheck([Roles.SUPER_ADMIN]),
+  // validate(updateServiceSchema),
   serviceController.update
 )
 
-router.delete('/:id', serviceController.remove)
+router.delete('/:id', roleCheck([Roles.SUPER_ADMIN]), serviceController.remove)
 
 // // Super Admin routes
 // router.get('/admin/services', serviceController.listServicesGlobal);

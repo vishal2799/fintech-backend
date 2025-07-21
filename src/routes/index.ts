@@ -8,6 +8,7 @@ import tenantRoutes from '../modules/tenant/tenant.routes';
 import sdRoutes from '../modules/super-distributor/super-distributor.routes';
 import dRoutes from '../modules/distributors/distributors.routes';
 import rRoutes from '../modules/retailers/retailers.routes';
+import walletRoutes from '../modules/wallet/wallet.routes';
 import wladminRoutes from '../modules/wl-admin/wlAdmin.routes';
 import logRoutes from '../modules/audit-logs/auditLogs.routes';
 import { withAuditContext } from '../middlewares/auditContext';
@@ -18,6 +19,7 @@ router.use('/auth', authRoutes)
 router.use('/permissions', permissionRoutes)
 router.use('/roles', rolesRoutes)
 router.use('/employees', employeesRoutes)
+router.use("/wallet", walletRoutes);
 router.use('/services', withAuditContext('SERVICE_MANAGEMENT', 'Service'), servicesRoutes)
 router.use('/super-admin/wl-admin', withAuditContext('WLADMIN_MANAGEMENT', 'WL Admin'), wladminRoutes)
 router.use('/admin/tenants', withAuditContext('TENANTS_MANAGEMENT', 'Tenant'), tenantRoutes)
