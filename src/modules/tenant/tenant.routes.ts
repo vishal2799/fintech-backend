@@ -1,17 +1,18 @@
-// routes/admin/tenant.routes.ts
 import { Router } from 'express';
 import * as TenantController from './tenant.controller';
 import { requireAuth } from '../../middlewares/requireAuth';
 import { roleCheck } from '../../middlewares/roleCheck';
 import { Roles } from '../../constants/roles';
+import { createTenantSchema, updateTenantSchema, updateTenantStatusSchema } from './tenant.schema';
+import { validate } from '../../middlewares/validate';
 
 const router = Router();
 
-// router.get('/all', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenants);
-// router.get('/advanced', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listTenantsAdvanced);
-router.patch('/:id', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenant);
-router.get('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.listAllTenants);
-router.post('/', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.createTenant);
-router.patch('/:id/status', requireAuth, roleCheck([Roles.SUPER_ADMIN]), TenantController.updateTenantStatus);
+router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN]))
+
+router.get('/', TenantController.listAllTenants);
+router.post('/', validate(createTenantSchema), TenantController.createTenant);
+router.patch('/:id/status', validate(updateTenantStatusSchema), TenantController.updateTenantStatus);
+router.patch('/:id', validate(updateTenantSchema), TenantController.updateTenant);
 
 export default router;

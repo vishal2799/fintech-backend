@@ -1,45 +1,40 @@
-// middlewares/ErrorHandler.ts
+// src/middlewares/ErrorHandler.ts
+
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
 
 const globalErrorHandler = (
   err: Error | AppError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  const statusCode = (err instanceof AppError && err.statusCode) || 500;
+  const isAppError = err instanceof AppError;
+
+  const statusCode = isAppError ? err.statusCode : 500;
   const message = err.message || 'Something went wrong';
 
-  res.status(statusCode).json({
+  const responseBody: {
+    success: false;
+    message: string;
+    status: number;
+    errorCode?: string;
+    stack?: string;
+  } = {
     success: false,
     message,
     status: statusCode,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+  };
+
+  if (isAppError && err.errorCode) {
+    responseBody.errorCode = err.errorCode;
+  }
+
+  if (process.env.NODE_ENV === 'development' && err.stack) {
+    responseBody.stack = err.stack;
+  }
+
+  res.status(statusCode).json(responseBody);
 };
 
 export default globalErrorHandler;
-
-
-// import { Request, Response, NextFunction } from "express";
-
-// // Custom error handler
-// export const errorHandler = (
-//   err: any,
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   console.error(err);
-
-//   const statusCode = err.statusCode || 500;
-//   const message = err.message || "Internal Server Error";
-
-//   res.status(statusCode).json({
-//     success: false,
-//     message,
-//     // Optionally, include stack in dev:
-//     // stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
-//   });
-// };
