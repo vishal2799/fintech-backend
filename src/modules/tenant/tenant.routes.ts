@@ -7,27 +7,33 @@ import { createTenantSchema, updateTenantSchema, updateTenantStatusSchema } from
 import { validate } from '../../middlewares/validate';
 import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../constants/audit.constants';
 import { withAuditContext } from '../../middlewares/auditContext';
+import { checkPermission } from '../../middlewares/permissions';
+import { PERMISSIONS } from '../../constants/permissions';
 
 const router = Router();
 
-router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN]))
+router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]))
 
-router.get('/', 
+router.get('/',
+  checkPermission(PERMISSIONS.TENANTS_READ, [Roles.SUPER_ADMIN]), 
   withAuditContext(AUDIT_MODULES.TENANT, AUDIT_ACTIONS.READ_TENANT),
   TenantController.listAllTenants
 );
 
 router.post('/', 
+  checkPermission(PERMISSIONS.TENANTS_CREATE, [Roles.SUPER_ADMIN]), 
   withAuditContext(AUDIT_MODULES.TENANT, AUDIT_ACTIONS.CREATE_TENANT),
   validate(createTenantSchema), TenantController.createTenant
 );
 
-router.patch('/:id/status',   
+router.patch('/:id/status',
+  checkPermission(PERMISSIONS.TENANTS_UPDATE, [Roles.SUPER_ADMIN]),    
   withAuditContext(AUDIT_MODULES.TENANT, AUDIT_ACTIONS.UPDATE_TENANT_STATUS),
   validate(updateTenantStatusSchema), TenantController.updateTenantStatus
 );
 
-router.patch('/:id',   
+router.patch('/:id',  
+  checkPermission(PERMISSIONS.TENANTS_UPDATE, [Roles.SUPER_ADMIN]),  
   withAuditContext(AUDIT_MODULES.TENANT, AUDIT_ACTIONS.UPDATE_TENANT),
   validate(updateTenantSchema), TenantController.updateTenant
 );

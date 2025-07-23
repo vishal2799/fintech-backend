@@ -90,3 +90,27 @@ export type ResponseEntry = {
   message: string;
   status: number;
 };
+
+
+// src/modules/auth/constants/auth.constants.ts
+
+export const AUTH_RESPONSE = {
+  LOGIN_SUCCESS: {
+    message: 'Logged-In successfully',
+    status: 200,
+  },
+  REFRESH_SUCCESS: {
+    message: 'Token refreshed successfully',
+    status: 200,
+  },
+  LOGOUT_SUCCESS: {
+    message: 'Logged-Out successfully',
+    status: 200,
+  },
+};
+
+export const AUTH_ERRORS = {
+  INVALID_CREDENTIALS: 'Invalid credentials',
+  SESSION_NOT_FOUND: 'Session not found',
+  USER_NOT_FOUND: 'User not found',
+};

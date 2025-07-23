@@ -31,12 +31,6 @@ export const ERRORS = {
     status: 403,
   },
 
-  INVALID_CREDENTIALS: {
-    message: 'Invalid email or password',
-    code: 'INVALID_CREDENTIALS',
-    status: 401,
-  },
-
   WALLET_INSUFFICIENT_BALANCE: {
     message: 'Insufficient wallet balance',
     code: 'WALLET_INSUFFICIENT_BALANCE',
@@ -47,6 +41,43 @@ export const ERRORS = {
     message: 'Credit request not found or already processed',
     code: 'CREDIT_REQUEST_NOT_FOUND',
     status: 404,
+  },
+
+   // Auth Errors
+  INVALID_CREDENTIALS: {
+    message: 'Invalid credentials',
+    code: 'INVALID_CREDENTIALS',
+    status: 401,
+  },
+
+  USER_NOT_FOUND: {
+    message: 'User not found',
+    code: 'USER_NOT_FOUND',
+    status: 404,
+  },
+
+  SESSION_NOT_FOUND: {
+    message: 'Session not found',
+    code: 'SESSION_NOT_FOUND',
+    status: 401,
+  },
+
+  UNAUTHORIZED: {
+    message: 'Unauthorized access',
+    code: 'UNAUTHORIZED',
+    status: 403,
+  },
+
+  TOKEN_EXPIRED: {
+    message: 'Token has expired',
+    code: 'TOKEN_EXPIRED',
+    status: 401,
+  },
+
+  TOKEN_INVALID: {
+    message: 'Invalid token',
+    code: 'TOKEN_INVALID',
+    status: 401,
   },
 };
 

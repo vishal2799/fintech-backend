@@ -1,11 +1,38 @@
 import { Router } from 'express';
-import { login, logout, refresh, } from './auth.controller';
+import * as AuthController from './auth.controller';
+import { validate } from '../../middlewares/validate';
+import { requireAuth } from '../../middlewares/requireAuth';
+import { withAuditContext } from '../../middlewares/auditContext';
+import {
+  loginSchema,
+  refreshSchema,
+  logoutSchema,
+} from './auth.schema';
+import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../constants/audit.constants';
 
 const router = Router();
 
-router.post('/login', login);
-router.post('/refresh', refresh);
-router.post('/logout', logout);
-// router.get('/me', meHandler); // ✅ Protected route
+// Public routes
+router.post(
+  '/login',
+  withAuditContext(AUDIT_MODULES.AUTH, AUDIT_ACTIONS.LOGIN),
+  validate(loginSchema),
+  AuthController.login
+);
+
+router.post(
+  '/refresh',
+  validate(refreshSchema),
+  AuthController.refresh
+);
+
+// Protected route (optional)
+router.post(
+  '/logout',
+  requireAuth,
+  withAuditContext(AUDIT_MODULES.AUTH, AUDIT_ACTIONS.LOGOUT),
+  validate(logoutSchema),
+  AuthController.logout
+);
 
 export default router;
