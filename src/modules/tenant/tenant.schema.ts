@@ -1,4 +1,3 @@
-// src/modules/tenant/tenant.schema.ts
 import { z } from 'zod';
 
 export const createTenantSchema = z.object({

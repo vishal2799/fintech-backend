@@ -45,11 +45,7 @@ export const updateTenant = async (
 
 export const updateTenantStatus = async (id: string, status: STATUS) => {
   if (!['ACTIVE', 'DISABLED'].includes(status)) {
-    throw new AppError({
-      message: 'Invalid status',
-      status: 400,
-      errorCode: 'INVALID_STATUS',
-    });
+    throw new AppError(ERRORS.TENANT_INVALID_STATUS);
   }
 
   const existing = await db.query.tenants.findFirst({

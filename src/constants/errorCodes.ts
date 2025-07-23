@@ -13,6 +13,12 @@ export const ERRORS = {
     status: 404,
   },
 
+  TENANT_INVALID_STATUS: {
+    message: 'Invalid Status',
+    code: 'INVALID_STATUS',
+    status: 400,
+  },
+  
   PERMISSION_NOT_FOUND: {
     message: 'Permission not found',
     code: 'PERMISSION_NOT_FOUND',
