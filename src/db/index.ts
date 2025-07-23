@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool } from '@neondatabase/serverless';
 import * as schema from './schema';
 import dotenv from 'dotenv';
 
@@ -9,5 +9,8 @@ if (!process.env.DATABASE_URL) {
   throw new Error('❌ DATABASE_URL is not defined in .env file');
 }
 
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle(sql, { schema });
+// Create Neon pool (WebSocket-backed)
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// ✅ Drizzle with full transaction support
+export const db = drizzle(pool, { schema });

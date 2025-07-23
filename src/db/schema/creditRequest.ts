@@ -9,7 +9,7 @@ export const creditRequestStatus = pgEnum('credit_request_status', [
 export const creditRequest = pgTable('credit_request', {
   id: uuid('id').defaultRandom().primaryKey(),
   fromTenantId: uuid('from_tenant_id').notNull(),
-  toUserId: uuid('to_user_id').notNull(),           // super admin approver
+  // toUserId: uuid('to_user_id').notNull(),           // super admin approver
   amount: numeric('amount').notNull(),
   status: creditRequestStatus('status').default('PENDING').notNull(),
   requestedByUserId: uuid('requested_by_user_id').notNull(),

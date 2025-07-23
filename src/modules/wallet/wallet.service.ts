@@ -31,13 +31,13 @@ export const getTenantWalletLedger = async (tenantId: string) => {
 export const requestCredit = async ({
   tenantId,
   amount,
-  toUserId,
+  // toUserId,
   requestedByUserId,
   remarks,
 }: {
   tenantId: string;
   amount: number;
-  toUserId: string;
+  // toUserId: string;
   requestedByUserId: string;
   remarks?: string;
 }) => {
@@ -46,7 +46,7 @@ export const requestCredit = async ({
   await db.insert(creditRequest).values({
     // id: nanoid(),
     fromTenantId: tenantId,
-    toUserId,
+    // toUserId,
     amount: amount.toString(),
     requestedByUserId,
     remarks,

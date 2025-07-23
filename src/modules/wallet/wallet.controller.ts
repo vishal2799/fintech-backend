@@ -5,6 +5,18 @@ import { successHandler } from '../../utils/responseHandler';
 import { AppError } from '../../utils/AppError';
 
 // Super Admin
+
+export const createTenantWallet = asyncHandler(async (req: Request, res: Response) => {
+  const { tenantId } = req.body;
+
+  if (!tenantId) throw new AppError('Tenant ID is required', 400);
+
+  await WalletService.ensureTenantWalletExists(tenantId);
+
+  return successHandler(res, {data: null, message: 'Tenant wallet created or already exists'});
+});
+
+
 export const getAllCreditRequests = asyncHandler(async (_req: Request, res: Response) => {
   const data = await WalletService.getAllCreditRequests();
   return successHandler(res, { data });
@@ -63,7 +75,7 @@ export const getWalletLedger = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const requestCredit = asyncHandler(async (req: Request, res: Response) => {
-  const { amount, toUserId, remarks } = req.body;
+  const { amount, remarks } = req.body;
   const tenantId = req.user?.tenantId;
 
   if (!tenantId) throw new AppError('Invalid Tenant', 403);
@@ -75,7 +87,7 @@ export const requestCredit = asyncHandler(async (req: Request, res: Response) =>
   const result = await WalletService.requestCredit({
     tenantId,
     amount,
-    toUserId,
+    // toUserId,
     requestedByUserId,
     remarks,
   });
