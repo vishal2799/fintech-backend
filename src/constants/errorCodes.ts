@@ -7,6 +7,12 @@ export const ERRORS = {
     status: 400,
   },
 
+  USER_EXISTS: {
+    message: 'User already exists',
+    code: 'USER_EXISTS',
+    status: 400,
+  },
+
   TENANT_NOT_FOUND: {
     message: 'Tenant not found',
     code: 'TENANT_NOT_FOUND',
@@ -54,6 +60,18 @@ export const ERRORS = {
     message: 'User not found',
     code: 'USER_NOT_FOUND',
     status: 404,
+  },
+
+  ROLE_NOT_FOUND: {
+    message: 'Role not found',
+    code: 'ROLE_NOT_FOUND',
+    status: 400,
+  },
+
+  DYNAMIC_ROLE_NOT_FOUND: {
+    message: 'Dynamic Role not found',
+    code: 'DYNAMIC_ROLE_NOT_FOUND',
+    status: 400,
   },
 
   SESSION_NOT_FOUND: {

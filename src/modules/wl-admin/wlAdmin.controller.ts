@@ -3,18 +3,26 @@ import * as UserService from '../users/users.service';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { successHandler } from '../../utils/responseHandler';
 import { hashPassword } from '../../utils/hash';
+import { Roles } from '../../constants/roles';
+import type { CreateWLAdminInput, UpdateWLAdminInput, UpdateWLAdminStatusInput } from './wlAdmin.schema';
+import { RESPONSE } from '../../constants/responseMessages';
 
 export const listWLAdmins = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
-  const users = await UserService.getUsersByStaticRole(tenantId, 'WL_ADMIN');
-    return successHandler(res, {data: users, message: 'Wl Admin Fetched successfully', status: 201});
+  const users = await UserService.getUsersByStaticRole(tenantId, Roles.WL_ADMIN);
+
+  return successHandler(res, {
+    data: users,
+    ...RESPONSE.WL_ADMIN.FETCHED
+  });
 });
 
 export const createWLAdmin = asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = req.user?.tenantId!;
-  const { name, email, mobile, password } = req.body;
+  const data = (req as any).validated as CreateWLAdminInput;
+  const { name, email, mobile, password, tenantId } = data;
 
   const passwordHash = await hashPassword(password);
+
   const result = await UserService.createUserWithStaticRole({
     tenantId,
     parentId: null,
@@ -22,20 +30,46 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     email,
     mobile,
     passwordHash,
-    staticRole: 'WL_ADMIN',
+    staticRole: Roles.WL_ADMIN,
   });
 
-  return successHandler(res, {data: result, message: 'Wl Admin Created successfully', status: 201});
+  return successHandler(res, {
+    data: result,
+    ...RESPONSE.WL_ADMIN.CREATED
+  });
 });
 
 export const updateWLAdmin = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const updated = await UserService.updateUserBasic(id, req.body);
-    return successHandler(res, {data: updated, message: 'Wl Admin Updated successfully', status: 200});
+  const updates = (req as any).validated as UpdateWLAdminInput;
+
+  const updated = await UserService.updateUserBasic(id, updates);
+
+  return successHandler(res, {
+    data: updated,
+    ...RESPONSE.WL_ADMIN.UPDATED
+  });
 });
 
 export const deleteWLAdmin = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
+
   const deleted = await UserService.deleteUser(id);
-  return successHandler(res, {data: deleted, message: 'Wl Admin Deleted successfully', status: 200});
+
+  return successHandler(res, {
+    data: deleted,
+    ...RESPONSE.WL_ADMIN.DELETED
+  });
+});
+
+export const updateWLAdminStatus = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = (req as any).validated as UpdateWLAdminStatusInput;
+
+  const result = await UserService.updateUserStatus(id, status);
+
+  return successHandler(res, {
+    data: result,
+    ...RESPONSE.WL_ADMIN.STATUS_UPDATED
+  });
 });

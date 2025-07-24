@@ -28,6 +28,29 @@ export const RESPONSE = {
   },
   },
 
+  WL_ADMIN: {
+    CREATED: {
+      message: 'WL Admin created successfully',
+      status: 201,
+    },
+    FETCHED: {
+      message: 'WL Admins fetched successfully',
+      status: 200,
+    },
+    UPDATED: {
+      message: 'WL Admin updated successfully',
+      status: 200,
+    },
+    STATUS_UPDATED: {
+      message: 'WL Admin status updated successfully',
+      status: 200,
+    },
+    DELETED: {
+      message: 'WL Admin deleted successfully',
+      status: 200,
+    },
+  },
+
   AUTH: {
     LOGIN_SUCCESS: {
       message: 'Logged in successfully',

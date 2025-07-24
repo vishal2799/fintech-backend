@@ -18,6 +18,11 @@ export const AUDIT_MODULES = {
   TRANSACTION: 'Transaction Management',
   REPORTS: 'Reports & Logs',
   SETTINGS: 'Platform Settings',
+  WL_ADMIN: 'WL_ADMIN',
+  EMPLOYEE: 'EMPLOYEE',
+  SD: 'SUPER_DISTRIBUTOR',
+  D: 'DISTRIBUTOR',
+  R: 'RETAILER',
 } as const;
 
 export const AUDIT_ACTIONS = {
@@ -51,4 +56,11 @@ export const AUDIT_ACTIONS = {
   // Reports
   EXPORT_REPORT: 'Export Report',
   VIEW_AUDIT_LOGS: 'View Audit Logs',
+
+  WLADMIN_CREATE: 'Create WL Admin',
+  WLADMIN_UPDATE: 'Update WL Admin',
+  WLADMIN_DELETE: 'Delete WL Admin',
+  WLADMIN_VIEW: 'Viewed WL Admin',
+  WLADMIN_STATUS_UPDATE: 'Status Update WL Admin',
+  ROLE_ASSIGN: 'ROLE_ASSIGN',
 } as const;

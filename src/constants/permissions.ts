@@ -24,6 +24,12 @@ export const PERMISSIONS = {
   PERMISSIONS_DELETE: 'roles:delete',
 
   // Employees
+  WLADMIN_CREATE: 'wladmin:create',
+  WLADMIN_READ: 'wladmin:read',
+  WLADMIN_UPDATE: 'wladmin:update',
+  WLADMIN_DELETE: 'wladmin:delete',
+
+  // Employees
   EMPLOYEES_CREATE: 'employees:create',
   EMPLOYEES_READ: 'employees:read',
   EMPLOYEES_UPDATE: 'employees:update',
