@@ -2,69 +2,63 @@ import { db } from '../../db';
 import { permissions } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { AppError } from '../../utils/AppError';
+import { ERRORS } from '../../constants/errorCodes';
+import type { PermissionScope } from './permissions.types';
 
 /**
  * List all permissions. Optional: filter by scope.
  */
-export const getAllPermissions = async (scopeFilter?: 'PLATFORM' | 'TENANT' | 'BOTH') => {
-  if (scopeFilter) {
-    return db.select().from(permissions).where(eq(permissions.scope, scopeFilter));
+export const getAllPermissions = async (scope?: PermissionScope) => {
+  if (scope) {
+    return db.select().from(permissions).where(eq(permissions.scope, scope));
   }
-
   return db.select().from(permissions);
 };
 
 /**
  * Create a permission (name must be unique).
  */
-export const createPermission = async ({
-  name,
-  module,
-  description,
-  scope,
-}: {
+export const createPermission = async (data: {
   name: string;
   module: string;
   description?: string;
-  scope: 'PLATFORM' | 'TENANT' | 'BOTH';
+  scope: PermissionScope;
 }) => {
-  const exists = await db.query.permissions.findFirst({
-    where: eq(permissions.name, name),
+  const existing = await db.query.permissions.findFirst({
+    where: eq(permissions.name, data.name),
   });
 
-  if (exists) throw new AppError('Permission already exists', 409);
+  if (existing) throw new AppError(ERRORS.PERMISSION_EXISTS);
 
-  const [created] = await db
-    .insert(permissions)
-    .values({ name, module, description, scope })
-    .returning();
-
+  const [created] = await db.insert(permissions).values(data).returning();
   return created;
 };
 
 /**
- * Update a permission.
+ * Update an existing permission.
  */
 export const updatePermission = async (
   id: string,
   updates: Partial<typeof permissions.$inferInsert>
 ) => {
-    const { createdAt, ...sanitized } = updates;
+  const { createdAt, ...sanitized } = updates;
 
   const [updated] = await db
     .update(permissions)
-    .set(sanitized)
+    .set({ ...sanitized })
     .where(eq(permissions.id, id))
     .returning();
 
-  if (!updated) throw new AppError('Permission not found', 404);
+  if (!updated) throw new AppError(ERRORS.PERMISSION_NOT_FOUND);
   return updated;
 };
 
 /**
- * Delete a permission (soft‑delete optional).
+ * Delete a permission (soft-delete optional).
  */
 export const deletePermission = async (id: string) => {
   const result = await db.delete(permissions).where(eq(permissions.id, id));
-  if (!result.rowCount) throw new AppError('Permission not found', 404);
+  if (!result.rowCount) throw new AppError(ERRORS.PERMISSION_NOT_FOUND);
+
+  return { id };
 };

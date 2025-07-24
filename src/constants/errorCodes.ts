@@ -31,6 +31,12 @@ export const ERRORS = {
     status: 404,
   },
 
+  PERMISSION_EXISTS: {
+message: 'Permission already exists',
+    code: 'PERMISSION_EXISTS',
+    status: 400,
+  },
+
   UNAUTHORIZED_ACCESS: {
     message: 'Unauthorized access',
     code: 'UNAUTHORIZED_ACCESS',

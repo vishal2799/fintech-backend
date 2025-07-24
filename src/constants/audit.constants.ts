@@ -41,6 +41,7 @@ export const AUDIT_ACTIONS = {
   CREATE_PERMISSION: 'Create Permission',
   UPDATE_PERMISSION: 'Update Permission',
   DELETE_PERMISSION: 'Delete Permission',
+  VIEW_PERMISSION: 'View Permission',
 
   // Wallet
   REQUEST_CREDIT: 'Request Credit',
