@@ -100,13 +100,20 @@ export const updateRole = async (
   if (!role) throw new AppError(ERRORS.ROLE_NOT_FOUND);
 
   if (role.tenantId !== tenantId) {
-    throw new AppError({message: 'Cannot update role from another tenant', status: 403, errorCode: 'ANOTHER_TENANT_ROLE'});
+    throw new AppError({
+      message: 'Cannot update role from another tenant',
+      status: 403,
+      errorCode: 'ANOTHER_TENANT_ROLE',
+    });
   }
 
   const { name, description, permissionIds } = data;
 
   if (name || description) {
-    await db.update(roles).set({ name, description }).where(eq(roles.id, roleId));
+    await db
+      .update(roles)
+      .set({ ...(name && { name }), ...(description && { description }) })
+      .where(eq(roles.id, roleId));
   }
 
   if (Array.isArray(permissionIds)) {
@@ -130,18 +137,22 @@ export const updateRole = async (
     await db.delete(rolePermissions).where(eq(rolePermissions.roleId, roleId));
 
     if (permissionIds.length > 0) {
-      await db.insert(rolePermissions).values(
-        permissionIds.map((permId) => ({
-          id: uuidv4(),
-          roleId,
-          permissionId: permId,
-        }))
-      );
+      const values = permissionIds.map((permissionId) => ({
+        id: uuidv4(),
+        roleId,
+        permissionId,
+      }));
+
+      const chunks = chunkArray(values, 25); // safe chunk size
+      for (const chunk of chunks) {
+        await db.insert(rolePermissions).values(chunk);
+      }
     }
   }
 
   return { id: roleId };
 };
+
 
 /**
  * Delete a role and associated permissions.
