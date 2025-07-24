@@ -26,6 +26,13 @@ router.post('/',
     validate(createWLAdminSchema), Controller.createWLAdmin
 );
 
+router.get('/:id', 
+    checkPermission(PERMISSIONS.WLADMIN_READ, [Roles.SUPER_ADMIN]), 
+    withAuditContext(AUDIT_MODULES.WL_ADMIN, AUDIT_ACTIONS.WLADMIN_VIEW),
+    Controller.getWLAdmin
+);
+
+
 router.patch('/:id/status',
   checkPermission(PERMISSIONS.WLADMIN_UPDATE, [Roles.SUPER_ADMIN]),    
   withAuditContext(AUDIT_MODULES.WL_ADMIN, AUDIT_ACTIONS.WLADMIN_STATUS_UPDATE),

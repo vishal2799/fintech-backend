@@ -210,3 +210,13 @@ export const deleteUser = async (id: string) => {
   if (!deleted) throw new AppError(ERRORS.USER_NOT_FOUND);
   return deleted;
 };
+
+export const getUserById = async (id: string) => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+
+  if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
+
+  return user;
+};

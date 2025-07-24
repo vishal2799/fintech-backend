@@ -73,3 +73,13 @@ export const updateWLAdminStatus = asyncHandler(async (req: Request, res: Respon
     ...RESPONSE.WL_ADMIN.STATUS_UPDATED
   });
 });
+
+export const getWLAdmin = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await UserService.getUserById(id);
+  return successHandler(res, {
+    data: user,
+    message: 'WL Admin fetched successfully',
+    status: 200,
+  });
+});
