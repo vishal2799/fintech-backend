@@ -9,6 +9,7 @@ export const AUDIT_PORTALS = {
 
 export const AUDIT_MODULES = {
   AUTH: 'Authentication',
+  ROLES: 'Roles',
   TENANT: 'Tenant Management',
   USER: 'User Management',
   PERMISSION: 'Permission Management',
@@ -53,6 +54,12 @@ export const AUDIT_ACTIONS = {
   CREATE_AGENT: 'Create Agent',
   UPDATE_AGENT: 'Update Agent',
   DELETE_AGENT: 'Delete Agent',
+
+  // Roles
+  READ_ROLE: 'Viewed Role',
+  CREATE_ROLE: 'Create Role',
+  UPDATE_ROLE: 'Update Role',
+  DELETE_ROLE: 'Delete Role',
 
   // Reports
   EXPORT_REPORT: 'Export Report',

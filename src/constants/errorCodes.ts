@@ -13,6 +13,12 @@ export const ERRORS = {
     status: 400,
   },
 
+  ROLE_EXISTS: {
+    message: 'Role already exists',
+    code: 'ROLE_EXISTS',
+    status: 400,
+  },
+
   TENANT_NOT_FOUND: {
     message: 'Tenant not found',
     code: 'TENANT_NOT_FOUND',
@@ -53,6 +59,12 @@ message: 'Permission already exists',
     message: 'Credit request not found or already processed',
     code: 'CREDIT_REQUEST_NOT_FOUND',
     status: 404,
+  },
+
+  INVALID_TENANT: {
+    message: 'Invalid Tenant',
+    code: 'INVALID_TENANT',
+    status: 401,
   },
 
    // Auth Errors

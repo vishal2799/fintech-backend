@@ -3,75 +3,63 @@
 import { Router } from 'express';
 import { requireAuth } from '../../middlewares/requireAuth';
 import { checkPermission } from '../../middlewares/permissions';
-import * as RolesController from './roles.controller';
-// import { createTenantRoleWithPermissions, deleteRole, getPermissionsForRole, listTenantRoles, updateRole, updateRolePermissions } from './roles.controller';
+import * as RoleController from './roles.controller';
 import { PERMISSIONS } from '../../constants/permissions';
+import { validate } from '../../middlewares/validate';
+import { createRoleSchema, updateRoleSchema } from './roles.schema';
+import { roleCheck } from '../../middlewares/roleCheck';
+import { Roles } from '../../constants/roles';
+import { withAuditContext } from '../../middlewares/auditContext';
+import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../constants/audit.constants';
 
 const router = Router();
 
-// 🔒 All routes require authentication
-router.use(requireAuth);
+router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.WL_ADMIN, Roles.EMPLOYEE]));
 
-// ✅ Create role (Super Admin or WL Admin)
-router.post('/', RolesController.createRole);
+// GET /roles
+router.get('/', 
+    checkPermission(PERMISSIONS.ROLES_READ, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]),
+    withAuditContext(AUDIT_MODULES.ROLES, AUDIT_ACTIONS.READ_ROLE),
+    RoleController.listRoles
+);
 
-// ✅ List roles for current tenant
-router.get('/', RolesController.listRoles);
+// GET /roles/:id/permissions
+router.get('/:id/permissions', 
+    checkPermission(PERMISSIONS.ROLES_READ, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]),
+    withAuditContext(AUDIT_MODULES.ROLES, AUDIT_ACTIONS.READ_ROLE),
+    RoleController.getRolePermissions
+);
 
-// ✅ Get permissions assigned to a role
-router.get('/:roleId/permissions', RolesController.getRolePermissions);
+// POST /roles
+router.post(
+  '/',
+  checkPermission(PERMISSIONS.ROLES_CREATE, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]),
+withAuditContext(AUDIT_MODULES.ROLES, AUDIT_ACTIONS.CREATE_ROLE),
+  validate(createRoleSchema),
+  RoleController.createRole
+);
 
-// ✅ Update role with permissions
-router.patch('/:id', RolesController.updateRole);
+router.get(
+  '/:id',
+  checkPermission(PERMISSIONS.ROLES_READ, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]),
+  withAuditContext(AUDIT_MODULES.ROLES, AUDIT_ACTIONS.READ_ROLE),
+  RoleController.getRoleById
+);
 
-// ✅ Update role permissions
-router.patch('/:id/permissions', RolesController.updateRolePermissions);
+// PATCH /roles/:id
+router.patch(
+  '/:id',
+  checkPermission(PERMISSIONS.ROLES_UPDATE, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]),
+  withAuditContext(AUDIT_MODULES.ROLES, AUDIT_ACTIONS.UPDATE_ROLE),
+  validate(updateRoleSchema),
+  RoleController.updateRole
+);
 
-// ✅ Delete role
-router.delete('/:id', RolesController.deleteRole);
-
-// router.post(
-//   '/admin/roles',
-//   requireAuth,
-//   checkPermission(PERMISSIONS.ROLES_CREATE),
-//   createTenantRoleWithPermissions
-// );
-
-// router.get(
-//   '/admin/roles',
-//   requireAuth,
-//   checkPermission(PERMISSIONS.ROLES_READ),
-//   listTenantRoles
-// );
-
-// router.get(
-//   '/admin/roles/:roleId/permissions',
-//   requireAuth,
-//   checkPermission(PERMISSIONS.ROLES_READ),
-//   getPermissionsForRole
-// );
-
-
-// router.patch(
-//   '/admin/roles/:id',
-//   requireAuth,
-//   checkPermission(PERMISSIONS.ROLES_UPDATE),
-//   updateRole
-// );
-
-// router.delete(
-//   '/admin/roles/:id',
-//   requireAuth,
-//   checkPermission(PERMISSIONS.ROLES_DELETE),
-//   deleteRole
-// );
-
-// router.put(
-//   '/admin/roles/:roleId/permissions',
-//   requireAuth,
-//   checkPermission(PERMISSIONS.ROLES_UPDATE),
-//   updateRolePermissions
-// );
-
+// DELETE /roles/:id
+router.delete('/:id', 
+    checkPermission(PERMISSIONS.ROLES_DELETE, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]),
+    withAuditContext(AUDIT_MODULES.ROLES, AUDIT_ACTIONS.DELETE_ROLE),
+    RoleController.deleteRole
+);
 
 export default router;
