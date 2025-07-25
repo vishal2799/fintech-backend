@@ -69,6 +69,13 @@ router.post(
   Controller.createTenantWallet
 );
 
+router.get(
+  '/super-admin/tenant-wallets',
+  checkPermission(PERMISSIONS.WALLET_VIEW, [Roles.SUPER_ADMIN]),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_VIEW),
+  Controller.listTenantWallets
+);
+
 // View credit requests
 router.get(
   '/super-admin/credit-requests',

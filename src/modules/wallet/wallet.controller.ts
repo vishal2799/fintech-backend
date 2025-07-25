@@ -146,3 +146,12 @@ export const getMyCreditRequests = asyncHandler(async (req: Request, res: Respon
   const data = await WalletService.getCreditRequestsByTenant(tenantId);
   return successHandler(res, { data, message: 'Credit Requests Fetched Successfully' });
 });
+
+export const listTenantWallets = asyncHandler(async (_req, res) => {
+  const data = await WalletService.getAllTenantWallets();
+  return successHandler(res, {
+    data,
+    message: 'Tenant wallet list fetched successfully',
+    status: 200,
+  });
+});

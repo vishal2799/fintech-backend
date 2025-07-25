@@ -2,6 +2,7 @@ import { desc, eq, and } from 'drizzle-orm';
 import { db } from '../../db';
 import {
   creditRequest,
+  tenants,
   tenantWallet,
   tenantWalletTransaction,
 } from '../../db/schema';
@@ -309,6 +310,25 @@ export const getCreditRequestsByTenant = async (tenantId: string) => {
     .from(creditRequest)
     .where(eq(creditRequest.fromTenantId, tenantId))
     .orderBy(desc(creditRequest.createdAt));
+};
+
+export const getAllTenantWallets = async () => {
+  const rows = await db
+    .select({
+      tenantId: tenants.id,
+      tenantName: tenants.name,
+      balance: tenantWallet.balance,
+      heldAmount: tenantWallet.heldAmount,
+    })
+    .from(tenants)
+    .leftJoin(tenantWallet, eq(tenantWallet.tenantId, tenants.id));
+
+  return rows.map((row) => ({
+    tenantId: row.tenantId,
+    tenantName: row.tenantName,
+    balance: row.balance ?? '0',
+    heldAmount: row.heldAmount ?? '0',
+  }));
 };
 
 
