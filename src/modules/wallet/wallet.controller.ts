@@ -10,6 +10,8 @@ import {
   debitWalletSchema,
   holdWalletSchema,
   releaseWalletSchema,
+  RequestCreditInput,
+  ReleaseWalletInput,
 } from './wallet.schema';
 import { ERRORS } from '../../constants/errorCodes';
 
@@ -80,12 +82,20 @@ export const holdTenantWalletAmount = asyncHandler(async (req: Request, res: Res
 });
 
 export const releaseTenantWalletHold = asyncHandler(async (req: Request, res: Response) => {
-  const input = releaseWalletSchema.parse({
-    ...req.body,
-    userId: req.user?.id,
-  });
+  const input = (req as any).validated as ReleaseWalletInput;
 
-  const result = await WalletService.releaseHeldFunds(input);
+const userId = req.user?.id;
+
+if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.releaseHeldFunds(fullInput);
   return successHandler(res, { data: result, message: 'Hold released' });
 });
 
@@ -108,13 +118,24 @@ export const getWalletLedger = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const requestCredit = asyncHandler(async (req: Request, res: Response) => {
-  const input = requestCreditSchema.parse({
-    ...req.body,
-    tenantId: req.user?.tenantId,
-    requestedByUserId: req.user?.id,
-  });
 
-  const result = await WalletService.requestCredit(input);
+  const input = (req as any).validated as RequestCreditInput;
+  
+const tenantId = req.user?.tenantId;
+const requestedByUserId = req.user?.id;
+
+if (!tenantId || !requestedByUserId) {
+  throw new AppError(ERRORS.INVALID_TENANT);
+}
+
+const fullInput = {
+  ...input,
+  tenantId,
+  requestedByUserId,
+};
+
+
+  const result = await WalletService.requestCredit(fullInput);
   return successHandler(res, { data: result, message: 'Credit request submitted' });
 });
 
@@ -123,5 +144,5 @@ export const getMyCreditRequests = asyncHandler(async (req: Request, res: Respon
   if (!tenantId) throw new AppError(ERRORS.INVALID_TENANT);
 
   const data = await WalletService.getCreditRequestsByTenant(tenantId);
-  return successHandler(res, { data });
+  return successHandler(res, { data, message: 'Credit Requests Fetched Successfully' });
 });

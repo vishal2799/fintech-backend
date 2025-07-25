@@ -40,7 +40,7 @@ router.get(
   Controller.getWalletLedger
 );
 
-router.post(
+router.get(
   '/admin/credit-requests',
   roleCheck([Roles.WL_ADMIN, Roles.EMPLOYEE]),
   checkPermission(PERMISSIONS.WALLET_REQUEST_CREDIT, [Roles.WL_ADMIN]),

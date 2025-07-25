@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 // ✅ Credit Request by WL Admin
 export const requestCreditSchema = z.object({
-  tenantId: z.string(),
-  requestedByUserId: z.string(),
+  // tenantId: z.string(),
+  // requestedByUserId: z.string(),
   amount: z.number().positive(),
   remarks: z.string().optional(),
 });
@@ -49,6 +49,6 @@ export const releaseWalletSchema = z.object({
   tenantId: z.string(),
   amount: z.number().positive(),
   description: z.string().optional(),
-  userId: z.string(), // admin performing the release
+  // userId: z.string(), // admin performing the release
 });
 export type ReleaseWalletInput = z.infer<typeof releaseWalletSchema>;
