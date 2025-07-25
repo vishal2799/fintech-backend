@@ -37,6 +37,31 @@ export const ERRORS = {
     status: 404,
   },
 
+  REQUEST_NOT_FOUND: {
+    message: 'Request not found or already processed',
+    code: 'REQUEST_NOT_FOUND',
+    status: 404,
+  },
+
+  INSUFFICIENT_BALANCE: {
+    message: 'Insufficient balance',
+    code: 'INSUFFICIENT_BALANCE',
+    status: 400,
+  },
+
+  INSUFFICIENT_BALANCE_HOLD: {
+    message: 'Insufficient balance to hold',
+    code: 'INSUFFICIENT_BALANCE_HOLD',
+    status: 400,
+  },
+
+  INSUFFICIENT_BALANCE_RELEASE: {
+    message: 'Insufficient held funds to release',
+    code: 'INSUFFICIENT_BALANCE_RELEASE',
+    status: 400,
+  },
+
+
   PERMISSION_EXISTS: {
 message: 'Permission already exists',
     code: 'PERMISSION_EXISTS',
