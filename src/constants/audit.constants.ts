@@ -44,6 +44,12 @@ export const AUDIT_ACTIONS = {
   DELETE_PERMISSION: 'Delete Permission',
   VIEW_PERMISSION: 'View Permission',
 
+  // Employees
+  CREATE_EMPLOYEE: 'Create Employee',
+  UPDATE_EMPLOYEE: 'Update Employee',
+  DELETE_EMPLOYEE: 'Delete Employee',
+  VIEW_EMPLOYEE: 'View Employee',
+
   // Wallet
   REQUEST_CREDIT: 'Request Credit',
   APPROVE_CREDIT: 'Approve Credit Request',

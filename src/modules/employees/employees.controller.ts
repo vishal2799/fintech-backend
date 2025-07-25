@@ -4,81 +4,64 @@ import { successHandler } from '../../utils/responseHandler';
 import * as UserService from '../users/users.service';
 import { hashPassword } from '../../utils/hash';
 import { AppError } from '../../utils/AppError';
+import type { CreateEmployeeInput, UpdateEmployeeInput } from './employees.schema';
+import { ERRORS } from '../../constants/errorCodes';
 
 /**
  * GET /admin/employees
  */
 export const listEmployees = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId;
-  if (!tenantId) throw new AppError('Invalid tenant context', 403);
+  if (!tenantId) throw new AppError(ERRORS.INVALID_TENANT);
 
   const employees = await UserService.getUsersByStaticRole(tenantId, 'EMPLOYEE');
-  return successHandler(res, {data: employees, message: 'Employee Fetched successfully', status: 200});
+  return successHandler(res, { data: employees, message: 'Employees fetched successfully', status: 200 });
 });
 
 /**
  * POST /admin/employees
  */
 export const createEmployee = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, mobile, password, roleId } = req.body;
+  const data = (req as any).validated as CreateEmployeeInput;
   const tenantId = req.user?.tenantId;
   const parentId = req.user?.id;
 
-  if (!tenantId) {
-    return res.status(403).json({ message: 'Invalid tenant context' });
-  }
+  if (!tenantId) throw new AppError(ERRORS.INVALID_TENANT);
 
-  const passwordHash = await hashPassword(password);
+  const passwordHash = await hashPassword(data.password);
 
   await UserService.createUserWithRole({
     tenantId,
     parentId,
-    name,
-    email,
-    mobile,
+    name: data.name,
+    email: data.email,
+    mobile: data.mobile,
     passwordHash,
     isEmployee: true,
-    roleId,
+    roleId: data.roleId,
   });
 
-  return successHandler(res, {
-    message: 'Employee created successfully',
-    status: 201,
-    data: null,
-  });
+  return successHandler(res, { data: null, message: 'Employee created successfully', status: 201 });
 });
 
 /**
  * PATCH /admin/employees/:id
  */
-// export const updateEmployee = asyncHandler(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const { name, email, mobile } = req.body;
-
-//   const updated = await UserService.updateUserBasic(id, { name, email, mobile });
-//   return successHandler(res, {data: updated, message: 'Employee Updated successfully', status: 200});
-// });
-
 export const updateEmployee = asyncHandler(async (req: Request, res: Response) => {
+  const data = (req as any).validated as UpdateEmployeeInput;
   const { id } = req.params;
-  const { name, email, mobile, roleId } = req.body;
 
   const updated = await UserService.updateUserWithRole({
     id,
-    name,
-    email,
-    mobile,
-    roleId,
+    name: data.name,
+    email: data.email,
+    mobile: data.mobile,
+    roleId: data.roleId,
     isEmployee: true,
   });
 
-  return successHandler(res, {
-    message: 'Employee updated successfully',
-    status: 200,
-    data: updated,
-  });
+  return successHandler(res, { data: updated, message: 'Employee updated successfully', status: 200 });
 });
-
 
 /**
  * DELETE /admin/employees/:id
@@ -86,6 +69,6 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
 export const deleteEmployee = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const deleted = await UserService.deleteUser(id);
-  return successHandler(res, {data: null, message: 'Employee Deleted successfully', status: 200});
+  await UserService.deleteUser(id);
+  return successHandler(res, { data: null, message: 'Employee deleted successfully', status: 200 });
 });
