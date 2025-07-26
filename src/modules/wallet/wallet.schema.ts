@@ -11,7 +11,7 @@ export type RequestCreditInput = z.infer<typeof requestCreditSchema>;
 
 // ✅ Approve/Reject Credit Request by Super Admin
 export const approveRejectSchema = z.object({
-  requestId: z.string(),
+  // requestId: z.string(),
   approvedByUserId: z.string(),
   remarks: z.string().optional(), // used for rejection
 });

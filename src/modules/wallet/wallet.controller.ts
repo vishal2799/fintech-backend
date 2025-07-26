@@ -15,6 +15,7 @@ import {
   HoldWalletInput,
   DebitWalletInput,
   ManualTopupInput,
+  ApproveRejectInput,
 } from './wallet.schema';
 import { ERRORS } from '../../constants/errorCodes';
 
@@ -34,23 +35,34 @@ export const getAllCreditRequests = asyncHandler(async (_req: Request, res: Resp
 });
 
 export const approveCreditRequest = asyncHandler(async (req: Request, res: Response) => {
-  const input = approveRejectSchema.parse({
-    requestId: req.params.id,
-    approvedByUserId: req.user?.id,
-  });
 
-  const result = await WalletService.approveCreditRequest(input);
+  const userId = req.user?.id;
+  const requestId =  req.params.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+  }
+
+  const result = await WalletService.approveCreditRequest({approvedByUserId: userId, requestId: requestId});
   return successHandler(res, { data: result, message: 'Request approved' });
 });
 
 export const rejectCreditRequest = asyncHandler(async (req: Request, res: Response) => {
-  const input = approveRejectSchema.parse({
-    requestId: req.params.id,
-    approvedByUserId: req.user?.id,
-    remarks: req.body.remarks,
-  });
+  // const input = approveRejectSchema.parse({
+  //   requestId: req.params.id,
+  //   approvedByUserId: req.user?.id,
+  //   remarks: req.body.remarks,
+  // });
 
-  const result = await WalletService.rejectCreditRequest(input);
+  const userId = req.user?.id;
+  const requestId =  req.params.id;
+  const remarks = req.body.remarks;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+  }
+
+  const result = await WalletService.rejectCreditRequest({requestId: requestId, remarks: remarks, approvedByUserId: userId});
   return successHandler(res, { data: result, message: 'Request rejected' });
 });
 

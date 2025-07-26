@@ -88,7 +88,7 @@ router.get(
 router.post(
   '/super-admin/approve/:id',
   checkPermission(PERMISSIONS.WALLET_APPROVE_CREDIT, [Roles.SUPER_ADMIN]),
-  validate(approveRejectSchema),
+  // validate(approveRejectSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_CREDIT_APPROVE),
   Controller.approveCreditRequest
 );
@@ -97,7 +97,7 @@ router.post(
 router.post(
   '/super-admin/reject/:id',
   checkPermission(PERMISSIONS.WALLET_APPROVE_CREDIT, [Roles.SUPER_ADMIN]),
-  validate(approveRejectSchema),
+  // validate(approveRejectSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_CREDIT_REJECT),
   Controller.rejectCreditRequest
 );

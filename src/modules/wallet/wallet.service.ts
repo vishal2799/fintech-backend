@@ -5,6 +5,7 @@ import {
   tenants,
   tenantWallet,
   tenantWalletTransaction,
+  users,
 } from '../../db/schema';
 import { AppError } from '../../utils/AppError';
 import { ERRORS } from '../../constants/errorCodes';
@@ -68,10 +69,33 @@ export const requestCredit = async ({
 
 export const getAllCreditRequests = async () => {
   return await db
-    .select()
+    .select({
+      id: creditRequest.id,
+      amount: creditRequest.amount,
+      remarks: creditRequest.remarks,
+      status: creditRequest.status,
+      createdAt: creditRequest.createdAt,
+      updatedAt: creditRequest.updatedAt,
+
+      fromTenantId: creditRequest.fromTenantId,
+      requestedByUserId: creditRequest.requestedByUserId,
+      approvedByUserId: creditRequest.approvedByUserId,
+
+      tenantName: tenants.name,
+      requestedByUserName: users.name,
+    })
     .from(creditRequest)
+    .leftJoin(tenants, eq(creditRequest.fromTenantId, tenants.id))
+    .leftJoin(users, eq(creditRequest.requestedByUserId, users.id))
     .orderBy(desc(creditRequest.createdAt));
 };
+
+// export const getAllCreditRequests = async () => {
+//   return await db
+//     .select()
+//     .from(creditRequest)
+//     .orderBy(desc(creditRequest.createdAt));
+// };
 
 export const approveCreditRequest = async ({
   requestId,
