@@ -12,6 +12,9 @@ import {
   releaseWalletSchema,
   RequestCreditInput,
   ReleaseWalletInput,
+  HoldWalletInput,
+  DebitWalletInput,
+  ManualTopupInput,
 } from './wallet.schema';
 import { ERRORS } from '../../constants/errorCodes';
 
@@ -52,32 +55,56 @@ export const rejectCreditRequest = asyncHandler(async (req: Request, res: Respon
 });
 
 export const manualTopupTenantWallet = asyncHandler(async (req: Request, res: Response) => {
-  const input = manualTopupSchema.parse({
-    ...req.body,
-    userId: req.user?.id,
-  });
+  const input = (req as any).validated as ManualTopupInput;
 
-  const result = await WalletService.manualTopupTenantWallet(input);
+  const userId = req.user?.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.manualTopupTenantWallet(fullInput);
   return successHandler(res, { data: result, message: 'Wallet credited' });
 });
 
 export const debitTenantWallet = asyncHandler(async (req: Request, res: Response) => {
-  const input = debitWalletSchema.parse({
-    ...req.body,
-    userId: req.user?.id,
-  });
+  const input = (req as any).validated as DebitWalletInput;
 
-  const result = await WalletService.debitTenantWallet(input);
+  const userId = req.user?.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.debitTenantWallet(fullInput);
   return successHandler(res, { data: result, message: 'Wallet debited' });
 });
 
 export const holdTenantWalletAmount = asyncHandler(async (req: Request, res: Response) => {
-  const input = holdWalletSchema.parse({
-    ...req.body,
-    userId: req.user?.id,
-  });
+  const input = (req as any).validated as HoldWalletInput;
 
-  const result = await WalletService.holdTenantFunds(input);
+  const userId = req.user?.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.holdTenantFunds(fullInput);
   return successHandler(res, { data: result, message: 'Amount held' });
 });
 

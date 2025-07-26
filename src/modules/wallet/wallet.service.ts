@@ -255,9 +255,13 @@ export const debitTenantWallet = async ({
 export const holdTenantFunds = async ({
   tenantId,
   amount,
+  userId,
+  description,
 }: {
   tenantId: string;
   amount: number;
+  userId: string;
+  description?: string;
 }) => {
   const [wallet] = await db
     .select()
@@ -268,23 +272,40 @@ export const holdTenantFunds = async ({
     throw new AppError(ERRORS.INSUFFICIENT_BALANCE_HOLD);
   }
 
-  await db.update(tenantWallet).set({
-    balance: (Number(wallet.balance) - amount).toFixed(2),
-    heldAmount: (Number(wallet.heldAmount) + amount).toFixed(2),
-    updatedAt: new Date(),
-  }).where(eq(tenantWallet.tenantId, tenantId));
+  await db.transaction(async (tx) => {
+    await tx.update(tenantWallet).set({
+      balance: (Number(wallet.balance) - amount).toFixed(2),
+      heldAmount: (Number(wallet.heldAmount) + amount).toFixed(2),
+      updatedAt: new Date(),
+    }).where(eq(tenantWallet.tenantId, tenantId));
 
-  return { success: true, message: 'Funds held.' };
+    await tx.insert(tenantWalletTransaction).values({
+      tenantId,
+      type: 'HOLD',
+      metaType: 'HOLD_FUNDS',
+      amount: amount.toFixed(2),
+      referenceUserId: userId,
+      description: description ?? 'Amount held from balance',
+      status: 'SUCCESS',
+    });
+  });
+
+  return { success: true, message: 'Funds held and logged.' };
 };
+
 
 // ✅ RELEASE HELD FUNDS
 
 export const releaseHeldFunds = async ({
   tenantId,
   amount,
+  userId,
+  description,
 }: {
   tenantId: string;
   amount: number;
+  userId: string;
+  description?: string;
 }) => {
   const [wallet] = await db
     .select()
@@ -295,14 +316,27 @@ export const releaseHeldFunds = async ({
     throw new AppError(ERRORS.INSUFFICIENT_BALANCE_RELEASE);
   }
 
-  await db.update(tenantWallet).set({
-    balance: (Number(wallet.balance) + amount).toFixed(2),
-    heldAmount: (Number(wallet.heldAmount) - amount).toFixed(2),
-    updatedAt: new Date(),
-  }).where(eq(tenantWallet.tenantId, tenantId));
+  await db.transaction(async (tx) => {
+    await tx.update(tenantWallet).set({
+      balance: (Number(wallet.balance) + amount).toFixed(2),
+      heldAmount: (Number(wallet.heldAmount) - amount).toFixed(2),
+      updatedAt: new Date(),
+    }).where(eq(tenantWallet.tenantId, tenantId));
 
-  return { success: true, message: 'Held funds released.' };
+    await tx.insert(tenantWalletTransaction).values({
+      tenantId,
+      type: 'UNHOLD',
+      metaType: 'RELEASE_FUNDS',
+      amount: amount.toFixed(2),
+      referenceUserId: userId,
+      description: description ?? 'Released held funds',
+      status: 'SUCCESS',
+    });
+  });
+
+  return { success: true, message: 'Held funds released and logged.' };
 };
+
 
 export const getCreditRequestsByTenant = async (tenantId: string) => {
   return await db

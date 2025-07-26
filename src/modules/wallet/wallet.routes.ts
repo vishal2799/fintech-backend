@@ -104,7 +104,7 @@ router.post(
 
 // Manual top-up
 router.post(
-  '/super-admin/topup',
+  '/super-admin/credit',
   checkPermission(PERMISSIONS.WALLET_MANUAL_TOPUP, [Roles.SUPER_ADMIN]),
   validate(manualTopupSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_TOPUP),

@@ -22,7 +22,7 @@ export const manualTopupSchema = z.object({
   tenantId: z.string(),
   amount: z.number().positive(),
   description: z.string().optional(),
-  userId: z.string(), // super admin performing the top-up
+  // userId: z.string(), // super admin performing the top-up
 });
 export type ManualTopupInput = z.infer<typeof manualTopupSchema>;
 
@@ -31,7 +31,7 @@ export const debitWalletSchema = z.object({
   tenantId: z.string(),
   amount: z.number().positive(),
   description: z.string().optional(),
-  userId: z.string(), // admin performing the debit
+  // userId: z.string(), // admin performing the debit
 });
 export type DebitWalletInput = z.infer<typeof debitWalletSchema>;
 
@@ -40,7 +40,7 @@ export const holdWalletSchema = z.object({
   tenantId: z.string(),
   amount: z.number().positive(),
   description: z.string().optional(),
-  userId: z.string(), // admin performing the hold
+  // userId: z.string(), // admin performing the hold
 });
 export type HoldWalletInput = z.infer<typeof holdWalletSchema>;
 

@@ -15,7 +15,9 @@ export const tenantTransactionMetaType = pgEnum('tenant_transaction_meta_type', 
   'KYC_FEE',
   'REVERSAL',
   'MANUAL_ADJUSTMENT',
-  'MANUAL_DEBIT'
+  'MANUAL_DEBIT',
+  'HOLD_FUNDS',
+  'RELEASE_FUNDS'
 ]);
 
 export const tenantWalletTransaction = pgTable('tenant_wallet_transaction', {
