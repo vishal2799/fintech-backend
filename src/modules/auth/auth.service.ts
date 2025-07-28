@@ -23,6 +23,7 @@ import type {
   LogoutInput,
 } from './auth.schema';
 import * as OtpService from '../auth/otp.service';
+import { logLoginAttempt } from './auth.logger';
 
 
 // export const login = async ({ email, password }: LoginInput) => {
@@ -60,12 +61,30 @@ import * as OtpService from '../auth/otp.service';
 //   return { accessToken, refreshToken };
 // };
 
-export const login = async ({ email, password }: LoginInput) => {
+export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?: any }) => {
   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (!user || !user.email || !user.passwordHash) throw new AppError(ERRORS.INVALID_CREDENTIALS);
-
+  if (!user || !user.email || !user.passwordHash) {
+      await logLoginAttempt({
+      email,
+      status: 'FAILED',
+      reason: 'User not found',
+      ...ipInfo,
+    });
+  
+    throw new AppError(ERRORS.INVALID_CREDENTIALS);
+  }
   const match = await bcrypt.compare(password, user.passwordHash);
-  if (!match) throw new AppError(ERRORS.INVALID_CREDENTIALS);
+
+  if (!match) {
+    await logLoginAttempt({
+      email,
+      userId: user.id,
+      status: 'FAILED',
+      reason: 'Incorrect password',
+      ...ipInfo,
+    });
+    throw new AppError(ERRORS.INVALID_CREDENTIALS);
+  }
 
   // ✅ Send OTP instead of login
   const identifier = user.email;
@@ -75,15 +94,25 @@ export const login = async ({ email, password }: LoginInput) => {
     type: 'LOGIN',
   });
 
+  await logLoginAttempt({
+    email,
+    userId: user.id,
+    status: 'SUCCESS',
+    reason: 'OTP sent',
+    ...ipInfo,
+  });
+
   return { identifier };
 };
 
 export const verifyOtpLogin = async ({
   identifier,
   otp,
+  ipInfo
 }: {
   identifier: string;
   otp: string;
+  ipInfo?: any;
 }) => {
   // 1. Verify OTP
   await OtpService.verifyOtp({ identifier, otp, type: 'LOGIN' });
@@ -120,6 +149,14 @@ export const verifyOtpLogin = async ({
     tenantId: user.tenantId,
     token: refreshToken,
     expiresAt: new Date(Date.now() + 7 * 86400000), // 7 days
+  });
+
+  await logLoginAttempt({
+    email: identifier,
+    userId: user.id,
+    status: 'SUCCESS',
+    reason: 'OTP verified and logged in',
+    ...ipInfo,
   });
 
   return { accessToken, refreshToken };

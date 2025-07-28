@@ -14,9 +14,18 @@ import { AUTH_RESPONSE } from '../../constants/responseMessages';
  * POST /auth/login
  * Accepts email & password, and initiates OTP verification
  */
-export const login = asyncHandler(async (req: Request<{}, {}, LoginInput>, res: Response) => {
+// export const login = asyncHandler(async (req: Request<{}, {}, LoginInput>, res: Response) => {
+export const login = asyncHandler(async (req: Request, res: Response) => {
   const data = (req as any).validated;
-  const result = await AuthService.login(data); // sends OTP, returns identifier
+  const ipInfo = {
+    ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress || undefined,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
+    accuracy: req.body.accuracy,
+    userAgent: req.headers['user-agent'],
+  };
+
+  const result = await AuthService.login({ ...data, ipInfo });
   return successHandler(res, { data: result, ...AUTH_RESPONSE.OTP_SENT });
 });
 
@@ -24,9 +33,19 @@ export const login = asyncHandler(async (req: Request<{}, {}, LoginInput>, res: 
  * POST /auth/verify-otp
  * Verifies OTP and logs in user (returns tokens)
  */
-export const verifyOtpLogin = asyncHandler(async (req: Request<{}, {}, VerifyOtpInput>, res: Response) => {
+// export const verifyOtpLogin = asyncHandler(async (req: Request<{}, {}, VerifyOtpInput>, res: Response) => {
+export const verifyOtpLogin = asyncHandler(async (req: Request, res: Response) => {
   const data = (req as any).validated;
-  const result = await AuthService.verifyOtpLogin(data); // returns accessToken, refreshToken
+   const ipInfo = {
+    ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress || undefined,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
+    accuracy: req.body.accuracy,
+    userAgent: req.headers['user-agent'],
+  };
+
+  const result = await AuthService.verifyOtpLogin({ ...data, ipInfo });
+  // const result = await AuthService.verifyOtpLogin(data); // returns accessToken, refreshToken
   return successHandler(res, { data: result, ...AUTH_RESPONSE.LOGIN_SUCCESS });
 });
 
