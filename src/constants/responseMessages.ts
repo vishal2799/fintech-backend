@@ -130,6 +130,10 @@ export const AUTH_RESPONSE = {
     message: 'Logged-Out successfully',
     status: 200,
   },
+  OTP_SENT: {
+      message: 'OTP sent successfully',
+      status: 200,
+    },
 };
 
 export const AUTH_ERRORS = {

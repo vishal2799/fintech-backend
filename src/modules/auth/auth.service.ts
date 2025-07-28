@@ -85,11 +85,14 @@ export const verifyOtpLogin = async ({
   identifier: string;
   otp: string;
 }) => {
+  // 1. Verify OTP
   await OtpService.verifyOtp({ identifier, otp, type: 'LOGIN' });
 
+  // 2. Fetch user using identifier (email or mobile if applicable)
   const user = await db.query.users.findFirst({ where: eq(users.email, identifier) });
   if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
 
+  // 3. Build role & permission payload
   const { roleNames, permissionNames } = await getUserRolesAndPermissions(
     user.id,
     !!user.isEmployee,
@@ -110,16 +113,61 @@ export const verifyOtpLogin = async ({
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  await db.insert(sessions).values({
+  // 4. Save refresh token to DB
+  const inserted = await db.insert(sessions).values({
     id: uuidv4(),
     userId: user.id,
     tenantId: user.tenantId,
     token: refreshToken,
-    expiresAt: new Date(Date.now() + 7 * 86400000),
+    expiresAt: new Date(Date.now() + 7 * 86400000), // 7 days
   });
 
   return { accessToken, refreshToken };
 };
+
+
+// export const verifyOtpLogin = async ({
+//   identifier,
+//   otp,
+// }: {
+//   identifier: string;
+//   otp: string;
+// }) => {
+//   await OtpService.verifyOtp({ identifier, otp, type: 'LOGIN' });
+
+//   const user = await db.query.users.findFirst({ where: eq(users.email, identifier) });
+//   if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
+
+//   const { roleNames, permissionNames } = await getUserRolesAndPermissions(
+//     user.id,
+//     !!user.isEmployee,
+//     user.staticRole
+//   );
+
+//   const payload = {
+//     name: user.name,
+//     email: user.email,
+//     userId: user.id,
+//     tenantId: user.tenantId,
+//     staticRole: user.staticRole || undefined,
+//     isEmployee: user.isEmployee,
+//     roleNames,
+//     permissions: permissionNames,
+//   };
+
+//   const accessToken = generateAccessToken(payload);
+//   const refreshToken = generateRefreshToken(payload);
+
+//   await db.insert(sessions).values({
+//     id: uuidv4(),
+//     userId: user.id,
+//     tenantId: user.tenantId,
+//     token: refreshToken,
+//     expiresAt: new Date(Date.now() + 7 * 86400000),
+//   });
+
+//   return { accessToken, refreshToken };
+// };
 
 
 export const refreshTokens = async ({ token }: RefreshInput) => {
