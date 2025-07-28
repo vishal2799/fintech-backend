@@ -98,6 +98,12 @@ message: 'Permission already exists',
     status: 401,
   },
 
+  INVALID_OTP: {
+    message: 'Invalid or expired OTP',
+    code: 'INVALID_OTP',
+    status: 400,
+  },
+
    // Auth Errors
   INVALID_CREDENTIALS: {
     message: 'Invalid credentials',

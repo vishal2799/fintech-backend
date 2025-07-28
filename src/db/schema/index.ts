@@ -13,3 +13,4 @@ export * from './walletHolds';
 export * from './tenantWallet';
 export * from './tenantWalletTransaction';
 export * from './creditRequest';
+export * from './otpTokens';

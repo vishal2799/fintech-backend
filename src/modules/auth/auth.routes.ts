@@ -9,6 +9,7 @@ import {
   logoutSchema,
 } from './auth.schema';
 import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../constants/audit.constants';
+import { verifyOtpSchema } from './otp.schema';
 
 const router = Router();
 
@@ -19,6 +20,14 @@ router.post(
   validate(loginSchema),
   AuthController.login
 );
+
+router.post(
+  '/verify-otp',  
+  withAuditContext(AUDIT_MODULES.AUTH, AUDIT_ACTIONS.LOGIN),
+  // validate(verifyOtpSchema), 
+  AuthController.verifyOtpLogin
+);
+
 
 router.post(
   '/refresh',
