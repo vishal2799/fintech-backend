@@ -17,6 +17,11 @@ import { AUTH_RESPONSE } from '../../constants/responseMessages';
 // export const login = asyncHandler(async (req: Request<{}, {}, LoginInput>, res: Response) => {
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const data = (req as any).validated;
+  //use in prod
+  // const ipAddress =
+  // req.headers['x-forwarded-for']?.toString().split(',')[0].trim() ||
+  // req.socket.remoteAddress;
+
   const ipInfo = {
     ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress || undefined,
     latitude: req.body.latitude,
