@@ -25,6 +25,12 @@ export const ERRORS = {
     status: 404,
   },
 
+  SERVICE_NOT_FOUND: {
+    message: 'Service not found',
+    code: 'SERVICE_NOT_FOUND',
+    status: 404,
+  },
+
   TENANT_INVALID_STATUS: {
     message: 'Invalid Status',
     code: 'INVALID_STATUS',

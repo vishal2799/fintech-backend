@@ -22,21 +22,19 @@ router.get('/', roleCheck([Roles.SUPER_ADMIN]), serviceController.getAll)
 
 router.post(
   '/',
-  roleCheck([Roles.SUPER_ADMIN]),
   // validate(createServiceSchema),
   serviceController.create
 )
 
-router.get('/:id', roleCheck([Roles.SUPER_ADMIN]),serviceController.getById)
+router.get('/:id', serviceController.getById)
 
 router.put(
   '/:id',
-  roleCheck([Roles.SUPER_ADMIN]),
   // validate(updateServiceSchema),
   serviceController.update
 )
 
-router.delete('/:id', roleCheck([Roles.SUPER_ADMIN]), serviceController.remove)
+router.delete('/:id', serviceController.remove)
 
 // // Super Admin routes
 // router.get('/admin/services', serviceController.listServicesGlobal);
