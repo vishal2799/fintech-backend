@@ -7,7 +7,7 @@ export function generateToken(payload: any) {
 const JWT_SECRET = process.env.JWT_SECRET!;
 const REFRESH_SECRET = process.env.REFRESH_SECRET!;
 
-export const generateAccessToken = (payload: any) => jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+export const generateAccessToken = (payload: any) => jwt.sign(payload, JWT_SECRET, { expiresIn: '30m' });
 export const generateRefreshToken = (payload: any) => jwt.sign(payload, REFRESH_SECRET, { expiresIn: '7d' });
 
 export const verifyAccessToken = (token: string) => jwt.verify(token, JWT_SECRET);
