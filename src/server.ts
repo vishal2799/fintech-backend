@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import routes from './routes'
 import globalErrorHandler from './middlewares/errorHandler'
 import { auditLogger } from './middlewares/auditLogger'
+import { extractSubdomain } from './middlewares/extractSubdomain'
 
 dotenv.config()
 
@@ -13,6 +14,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use(extractSubdomain);
 
 app.use(auditLogger);
 

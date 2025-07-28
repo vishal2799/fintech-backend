@@ -12,6 +12,8 @@ import { PERMISSIONS } from '../../constants/permissions';
 
 const router = Router();
 
+router.get('/details', TenantController.getTenantDetails);
+
 router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]))
 
 router.get('/',
@@ -37,5 +39,7 @@ router.patch('/:id',
   withAuditContext(AUDIT_MODULES.TENANT, AUDIT_ACTIONS.UPDATE_TENANT),
   validate(updateTenantSchema), TenantController.updateTenant
 );
+
+
 
 export default router;
