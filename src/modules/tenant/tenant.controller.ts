@@ -6,7 +6,7 @@ import { RESPONSE } from '../../constants/responseMessages';
 import { AppError } from '../../utils/AppError';
 import { ERRORS } from '../../constants/errorCodes';
 import { db } from '../../db';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { tenants } from '../../db/schema';
 
 export const createTenant = asyncHandler(async (req: Request, res: Response) => {
@@ -32,15 +32,40 @@ export const listAllTenants = asyncHandler(async (_req: Request, res: Response) 
   return successHandler(res, { data, ...RESPONSE.TENANT.LISTED });
 });
 
-// controllers/tenant.controller.ts
-export const getTenantDetails = asyncHandler(async (req, res) => {
+export const getTenantDetails = asyncHandler(async (req: Request, res: Response) => {
   const subdomain = (req as any).subdomain;
-  if (!subdomain || subdomain === 'superadmin') throw new AppError(ERRORS.INVALID_TENANT);
+  const host = req.headers.host?.split(':')[0] ?? ''; // ensures string
+
+  if (subdomain === 'superadmin' || host === 'superadmin.localhost') {
+    throw new AppError(ERRORS.INVALID_TENANT);
+  }
 
   const tenant = await db.query.tenants.findFirst({
-    where: eq(tenants.slug, subdomain),
+    where: or(
+      eq(tenants.slug, subdomain ?? ''),             // for subdomain-based tenants
+      eq(tenants.domainCname, host)                 // for custom domain tenants
+    )
   });
 
-  if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
-  return successHandler(res, {data: tenant, message: 'Tenant Details'});
+  if (!tenant) {
+    throw new AppError(ERRORS.TENANT_NOT_FOUND);
+  }
+
+  return successHandler(res, {
+    data: tenant,
+    message: 'Tenant Details'
+  });
 });
+
+
+// export const getTenantDetails = asyncHandler(async (req, res) => {
+//   const subdomain = (req as any).subdomain;
+//   if (!subdomain || subdomain === 'superadmin') throw new AppError(ERRORS.INVALID_TENANT);
+
+//   const tenant = await db.query.tenants.findFirst({
+//     where: eq(tenants.slug, subdomain),
+//   });
+
+//   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+//   return successHandler(res, {data: tenant, message: 'Tenant Details'});
+// });
