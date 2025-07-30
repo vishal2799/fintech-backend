@@ -16,7 +16,7 @@ import { withAuditContext } from '../../middlewares/auditContext';
 const router = Router();
 
 // Require SUPER_ADMIN to access permissions module
-router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN]));
+router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]));
 
 // GET /permissions
 router.get('/', 

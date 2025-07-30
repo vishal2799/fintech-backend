@@ -122,7 +122,7 @@ export const verifyOtpLogin = async ({
   if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
 
   // 3. Build role & permission payload
-  const { roleNames, permissionNames } = await getUserRolesAndPermissions(
+  const { roleNames, permissionNames, scope } = await getUserRolesAndPermissions(
     user.id,
     !!user.isEmployee,
     user.staticRole
@@ -137,6 +137,7 @@ export const verifyOtpLogin = async ({
     isEmployee: user.isEmployee,
     roleNames,
     permissions: permissionNames,
+    scope
   };
 
   const accessToken = generateAccessToken(payload);
@@ -220,7 +221,7 @@ export const refreshTokens = async ({ token }: RefreshInput) => {
   });
   if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
 
-  const { roleNames, permissionNames } = await getUserRolesAndPermissions(user.id, !!user.isEmployee, user.staticRole);
+  const { roleNames, permissionNames, scope } = await getUserRolesAndPermissions(user.id, !!user.isEmployee, user.staticRole);
 
   const newPayload = {
     name: user.name,
@@ -231,6 +232,7 @@ export const refreshTokens = async ({ token }: RefreshInput) => {
     isEmployee: user.isEmployee,
     roleNames,
     permissions: permissionNames,
+    scope
   };
 
   const accessToken = generateAccessToken(newPayload);
@@ -249,16 +251,17 @@ const getUserRolesAndPermissions = async (
 ) => {
   let roleNames: string[] = [];
   let permissionNames: (string | null)[] = [];
-
+  let scope;
   if (isEmployee) {
     const roleRows = await db
-      .select({ id: roles.id, name: roles.name })
+      .select({ id: roles.id, name: roles.name, scope: roles.scope })
       .from(userRoles)
       .innerJoin(roles, eq(userRoles.roleId, roles.id))
       .where(eq(userRoles.userId, userId));
 
     const roleIds = roleRows.map((r) => r.id);
     roleNames = roleRows.map((r) => r.name);
+    scope = roleRows[0]?.scope ?? 'TENANT';
 
     const permRows = await db
       .select({ name: permissions.name })
@@ -272,5 +275,5 @@ const getUserRolesAndPermissions = async (
     permissionNames = [];
   }
 
-  return { roleNames, permissionNames };
+  return { roleNames, permissionNames, scope };
 };

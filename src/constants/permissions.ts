@@ -17,11 +17,12 @@ export const PERMISSIONS = {
   ROLES_CREATE: 'roles:create',
   ROLES_UPDATE: 'roles:update',
   ROLES_DELETE: 'roles:delete',
+
   PERMISSIONS_MANAGE: 'permissions:manage',
-  PERMISSIONS_READ: 'roles:read',
-  PERMISSIONS_CREATE: 'roles:create',
-  PERMISSIONS_UPDATE: 'roles:update',
-  PERMISSIONS_DELETE: 'roles:delete',
+  PERMISSIONS_READ: 'permissions:read',
+  PERMISSIONS_CREATE: 'permissions:create',
+  PERMISSIONS_UPDATE: 'permissions:update',
+  PERMISSIONS_DELETE: 'permissions:delete',
 
   // WL Admin Permissions
   WALLET_VIEW: 'WALLET_VIEW',
