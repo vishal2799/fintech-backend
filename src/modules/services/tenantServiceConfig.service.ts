@@ -1,11 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../../db';
-import { tenantServiceConfig } from '../../db/schema';
+import { services, tenantServiceConfig } from '../../db/schema';
 
 export const TenantServiceConfigService = {
   // Get all services with tenant-level overrides
   async getServicesForTenant(tenantId: string) {
-    const allServices = await db.query.services.findMany();
+    const allServices = await await db.query.services.findMany({
+    where: eq(services.isGlobalEnabled, true), // Only globally enabled ones
+  });
 
     const overrides = await db.query.tenantServiceConfig.findMany({
       where: eq(tenantServiceConfig.tenantId, tenantId),
