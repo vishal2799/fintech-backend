@@ -16,7 +16,7 @@ export const TenantServiceConfigController = {
 
   updateTenantServices: asyncHandler(async (req: Request, res: Response) => {
     const tenantId = req.params.tenantId;
-    const config = req.body as { serviceId: string; isEnabled: boolean }[];
+    const config = req.body as { serviceId: string; isTenantGloballyEnabled: boolean }[];
     await TenantServiceConfigService.updateTenantServiceConfig(tenantId, config);
     return successHandler(res, { data: null,
       message: 'Tenant services updated',
