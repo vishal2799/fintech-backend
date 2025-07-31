@@ -4,6 +4,7 @@ import rolesRoutes from '../modules/roles/roles.routes'
 import permissionRoutes from '../modules/permissions/permissions.routes';
 import employeesRoutes from '../modules/employees/employees.routes';
 import servicesRoutes from '../modules/services/services.routes';
+import tenantServicesRoutes from '../modules/services/tenantServiceConfig.routes';
 import tenantRoutes from '../modules/tenant/tenant.routes';
 import sdRoutes from '../modules/super-distributor/super-distributor.routes';
 import dRoutes from '../modules/distributors/distributors.routes';
@@ -20,7 +21,8 @@ router.use('/permissions', permissionRoutes)
 router.use('/roles', rolesRoutes)
 router.use('/employees', employeesRoutes)
 router.use("/wallet", walletRoutes);
-router.use('/services', withAuditContext('SERVICE_MANAGEMENT', 'Service'), servicesRoutes)
+router.use('/services', servicesRoutes)
+router.use('/tenant-services', tenantServicesRoutes)
 router.use('/super-admin/wl-admin', withAuditContext('WLADMIN_MANAGEMENT', 'WL Admin'), wladminRoutes)
 router.use('/admin/tenants', withAuditContext('TENANTS_MANAGEMENT', 'Tenant'), tenantRoutes)
 router.use('/wl-admin/super-distributor', sdRoutes)

@@ -7,6 +7,7 @@ export * from './rolePermissions';
 export * from './permissions';
 export * from './sessions';
 export * from './services';
+export * from './tenantServiceConfig';
 export * from './wallets';
 export * from './walletTransactions';
 export * from './walletHolds';
