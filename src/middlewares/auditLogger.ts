@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { db } from '../db';
 import { auditLogs } from '../db/schema/auditLogs';
 import { methodMappers } from '../constants/methodMappers';
+import { url } from 'inspector';
 
 export const auditLogger = (req: Request, res: Response, next: NextFunction) => {
   const originalJson = res.json.bind(res);
@@ -15,9 +16,11 @@ export const auditLogger = (req: Request, res: Response, next: NextFunction) => 
       // const verb = methodMappers[req.method] || req.method;
       const resource = auditContext?.resource || 'Resource';
       // const activity = `${verb} ${resource}`;
+      const cleanUrl = req.baseUrl + req.path;
 
       const auditEntry = {
-        url: req.originalUrl,
+        // url: req.originalUrl,
+        url: cleanUrl,
         method: req.method,
         activity: resource,
         actorId: user?.id ?? null,

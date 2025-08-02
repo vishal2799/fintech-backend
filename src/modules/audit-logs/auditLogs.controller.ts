@@ -40,3 +40,11 @@ export const getAuditLogs = asyncHandler(async (req: Request, res: Response) => 
   const data = await listAuditLogs(filters)
   return successHandler(res, { data, ...RESPONSE.AUDIT_LOGS.FETCHED })
 })
+
+export const exportAuditLogs = asyncHandler(async (req: Request, res: Response) => {
+  const filters = req.query as any; // or use validated if zod used
+  const exportAll = req.query.exportAll === 'true';
+
+  const data = await listAuditLogs(filters, { exportAll });
+  return successHandler(res, { data: data.result, ...RESPONSE.AUDIT_LOGS.FETCHED });
+});

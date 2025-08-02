@@ -6,7 +6,8 @@ import { auditLogs } from '../../db/schema/auditLogs'
 import { Filters, PaginatedData } from './auditLogs.types'
 
 export const listAuditLogs = async (
-  filters: Filters<typeof auditLogs.$inferSelect>
+  filters: Filters<typeof auditLogs.$inferSelect>,
+  options?: { exportAll?: boolean }
 ): Promise<PaginatedData<typeof auditLogs.$inferSelect>> => {
   const {
   sortBy,
@@ -42,24 +43,38 @@ const pageSize = Number(filters.pageSize) || 10
     }
   }
 
-
-  // 📥 Data query
-  const rows = await db
+  const query = db
     .select()
     .from(auditLogs)
     .where(searchConditions ?? undefined)
-    .orderBy(orderClause)
-    .limit(5)
-    .offset(offset)
+    .orderBy(orderClause);
 
-  // 📊 Total count query
+    const rows = await (options?.exportAll
+    ? query
+    : query.limit(pageSize).offset(pageIndex * pageSize));
+
   const [{ count }] = await db
     .select({ count: sql<number>`count(*)` })
     .from(auditLogs)
-    .where(searchConditions ?? undefined)
+    .where(searchConditions ?? undefined);
 
   return {
     result: rows,
     rowCount: count,
   }
 }
+
+  // // 📥 Data query
+  // const rows = await db
+  //   .select()
+  //   .from(auditLogs)
+  //   .where(searchConditions ?? undefined)
+  //   .orderBy(orderClause)
+  //   .limit(5)
+  //   .offset(offset)
+
+  // // 📊 Total count query
+  // const [{ count }] = await db
+  //   .select({ count: sql<number>`count(*)` })
+  //   .from(auditLogs)
+  //   .where(searchConditions ?? undefined)

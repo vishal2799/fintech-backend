@@ -9,5 +9,6 @@ const router = express.Router();
 // Super Admin & WL Admin logs
 // router.get('/', requireAuth, AuditController.listLogs);
 router.get('/', requireAuth, AuditController.getAuditLogs)
+router.get('/export', AuditController.exportAuditLogs);
 
 export default router;
