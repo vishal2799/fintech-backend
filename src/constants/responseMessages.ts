@@ -107,6 +107,13 @@ export const RESPONSE = {
       status: 200,
     },
   },
+
+  AUDIT_LOGS: {
+    FETCHED: {
+      message: 'Audit Logs fetched successfully',
+      status: 200,
+    },
+  }
 };
 
 export type ResponseEntry = {

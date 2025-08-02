@@ -5,16 +5,16 @@ import { methodMappers } from '../constants/methodMappers';
 
 export const auditLogger = (req: Request, res: Response, next: NextFunction) => {
   const originalJson = res.json.bind(res);
-  const { module = 'GENERAL', resource = 'Activity' } = req.auditContext || {};
+  // const { module = 'GENERAL', resource = 'Activity' } = req.auditContext || {};
 
   res.json = function (body: any) {
     try {
       const user = req.user;
       const { auditContext } = req;
 
-      const verb = methodMappers[req.method] || req.method;
+      // const verb = methodMappers[req.method] || req.method;
       const resource = auditContext?.resource || 'Resource';
-      const activity = `${verb} ${resource}`;
+      // const activity = `${verb} ${resource}`;
 
       const auditEntry = {
         url: req.originalUrl,
