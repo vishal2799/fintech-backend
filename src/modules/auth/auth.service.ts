@@ -24,6 +24,8 @@ import type {
 } from './auth.schema';
 import * as OtpService from '../auth/otp.service';
 import { logLoginAttempt } from './auth.logger';
+import * as TwilioOtpService from '../auth/twilioOtp.service';
+import { FEATURE_FLAGS } from '../../config';
 
 
 // export const login = async ({ email, password }: LoginInput) => {
@@ -87,12 +89,18 @@ export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?:
   }
 
   // ✅ Send OTP instead of login
-  const identifier = user.email;
 
+      if (FEATURE_FLAGS.useTwilioOtp) {
+  if (!user.mobile) {
+    throw new AppError(ERRORS.USER_NOT_FOUND);
+  }
+  await TwilioOtpService.TwilioOtpService.sendOtp({ identifier: user.mobile });
+      } else {
   await OtpService.sendOtp({
-    identifier,
+    identifier: user.email,
     type: 'LOGIN',
   });
+      }
 
   await logLoginAttempt({
     email,
@@ -102,7 +110,7 @@ export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?:
     ...ipInfo,
   });
 
-  return { identifier };
+  return { identifier: user.email };
 };
 
 export const verifyOtpLogin = async ({
@@ -114,12 +122,19 @@ export const verifyOtpLogin = async ({
   otp: string;
   ipInfo?: any;
 }) => {
-  // 1. Verify OTP
-  await OtpService.verifyOtp({ identifier, otp, type: 'LOGIN' });
-
-  // 2. Fetch user using identifier (email or mobile if applicable)
+  // 1. Fetch user using identifier (email or mobile if applicable)
   const user = await db.query.users.findFirst({ where: eq(users.email, identifier) });
   if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
+
+  // 2. Verify OTP
+    if (FEATURE_FLAGS.useTwilioOtp) {
+  if (!user.mobile) {
+    throw new AppError(ERRORS.USER_NOT_FOUND);
+  }
+  await TwilioOtpService.TwilioOtpService.verifyOtp({ identifier: user.mobile, otp });
+    } else {
+     await OtpService.verifyOtp({ identifier, otp, type: 'LOGIN' });
+    }
 
   // 3. Build role & permission payload
   const { roleNames, permissionNames, scope } = await getUserRolesAndPermissions(

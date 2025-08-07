@@ -113,7 +113,40 @@ export const RESPONSE = {
       message: 'Audit Logs fetched successfully',
       status: 200,
     },
-  }
+  },
+  DOCUMENT: {
+    UPLOAD_SUCCESS: {
+      message: 'Document uploaded successfully',
+      status: 201,
+    },
+    DELETE_SUCCESS: {
+      message: 'Document deleted successfully',
+      status: 200,
+    },
+  },
+  TICKET: {
+  CREATED: {
+    message: 'Support ticket created successfully',
+    status: 201,
+  },
+  FETCHED: {
+    message: 'Support tickets fetched successfully',
+    status: 200,
+  },
+  REPLIED: {
+    message: 'Reply added to support ticket',
+    status: 201,
+  },
+  STATUS_UPDATED: {
+    message: 'Ticket status updated successfully',
+    status: 200,
+  },
+  ASSIGNED: {
+    message: 'Support ticket assigned successfully',
+    status: 200,
+  },
+},
+
 };
 
 export type ResponseEntry = {

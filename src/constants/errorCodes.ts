@@ -1,5 +1,7 @@
 // src/constants/errorCodes.ts
 
+import { INVALID } from "zod";
+
 export const ERRORS = {
   SLUG_EXISTS: {
     message: 'Slug already exists',
@@ -98,10 +100,22 @@ message: 'Permission already exists',
     status: 401,
   },
 
+  MISSING_PUBLIC_ID: {
+    message: 'Missing Public ID',
+    code: 'MISSING_PUBLIC_ID',
+    status: 400,
+  },
+
   INVALID_OTP: {
     message: 'Invalid or expired OTP',
     code: 'INVALID_OTP',
     status: 400,
+  },
+
+  OTP_SEND_FAILED: {
+    message: 'OTP send failed',
+    code: 'OTP_SEND_FAILED',
+    status: 500,
   },
 
    // Auth Errors
@@ -114,6 +128,12 @@ message: 'Permission already exists',
   USER_NOT_FOUND: {
     message: 'User not found',
     code: 'USER_NOT_FOUND',
+    status: 404,
+  },
+
+  TICKET_NOT_FOUND: {
+    message: 'Ticket not found',
+    code: 'TICKET_NOT_FOUND',
     status: 404,
   },
 

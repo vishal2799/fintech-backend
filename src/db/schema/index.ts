@@ -16,3 +16,4 @@ export * from './tenantWalletTransaction';
 export * from './creditRequest';
 export * from './otpTokens';
 export * from './authLogins';
+export * from './supportTickets'

@@ -6,7 +6,7 @@ import { TenantServiceConfigController } from './tenantServiceConfig.controller'
 
 const router = Router();
 
-router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN]));
+router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]));
 
 router.get('/:tenantId', TenantServiceConfigController.getTenantServices);
 router.put('/:tenantId', TenantServiceConfigController.updateTenantServices);
