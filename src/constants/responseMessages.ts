@@ -173,7 +173,19 @@ export const AUTH_RESPONSE = {
   OTP_SENT: {
       message: 'OTP sent successfully',
       status: 200,
-    },
+  },
+  RESET_EMAIL_SENT: {
+      message: 'Reset Email sent successfully',
+      status: 200,
+  },
+  OTP_VERIFIED: {
+      message: 'OTP verified successfully',
+      status: 200,
+  },
+  PASSWORD_UPDATED: {
+      message: 'Password updated successfully',
+      status: 200,
+  },
 };
 
 export const AUTH_ERRORS = {

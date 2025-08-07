@@ -112,6 +112,12 @@ message: 'Permission already exists',
     status: 400,
   },
 
+  INVALID_TOKEN: {
+    message: 'Invalid or expired Token',
+    code: 'INVALID_TOKEN',
+    status: 400,
+  },
+
   OTP_SEND_FAILED: {
     message: 'OTP send failed',
     code: 'OTP_SEND_FAILED',

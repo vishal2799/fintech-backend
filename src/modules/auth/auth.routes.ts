@@ -8,6 +8,9 @@ import {
   refreshSchema,
   logoutSchema,
   verifyOtpSchema,
+  requestPasswordResetSchema,
+  verifyResetOtpSchema,
+  resetPasswordSchema,
 } from './auth.schema';
 import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../constants/audit.constants';
 
@@ -44,4 +47,21 @@ router.post(
   AuthController.logout
 );
 
+router.post(
+  '/request-password-reset',
+  validate(requestPasswordResetSchema),
+  AuthController.requestPasswordReset
+)
+
+router.post(
+  "/verify-reset-otp",
+  validate(verifyResetOtpSchema),
+  AuthController.verifyResetOtp
+);
+
+router.post(
+  "/reset-password",
+  validate(resetPasswordSchema),
+  AuthController.resetPassword
+);
 export default router;

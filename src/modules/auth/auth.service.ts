@@ -8,6 +8,7 @@ import {
   userRoles,
   rolePermissions,
   permissions,
+  resetTokens,
 } from '../../db/schema';
 import { AppError } from '../../utils/AppError';
 import {
@@ -21,11 +22,16 @@ import type {
   LoginInput,
   RefreshInput,
   LogoutInput,
+  VerifyResetOtpInput,
+  ResetPasswordInput,
 } from './auth.schema';
 import * as OtpService from '../auth/otp.service';
 import { logLoginAttempt } from './auth.logger';
 import * as TwilioOtpService from '../auth/twilioOtp.service';
 import { FEATURE_FLAGS } from '../../config';
+import { sendPasswordResetOtp } from './sendgrid.service';
+import { insertResetToken, invalidateResetToken } from './reset-token';
+import { hashPassword } from '../../utils/hash';
 
 
 // export const login = async ({ email, password }: LoginInput) => {
@@ -291,4 +297,49 @@ const getUserRolesAndPermissions = async (
   }
 
   return { roleNames, permissionNames, scope };
+};
+
+export const requestPasswordReset = async (email: string) => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, email),
+  });
+
+  if (!user) throw new AppError(ERRORS.USER_NOT_FOUND);
+
+  await OtpService.generateOtp({
+    identifier: email,
+    purpose: "password_reset",
+  });
+
+  await sendPasswordResetOtp({ email });
+};
+
+export const verifyResetOtp = async ({ identifier, otp }: VerifyResetOtpInput) => {
+  const isValid = await OtpService.verifyOtp({identifier, otp, type: 'password_reset'});
+  if (!isValid) throw new AppError(ERRORS.INVALID_OTP);
+
+  // const resetToken = generateResetToken(); // e.g. JWT or UUID
+  const resetToken = uuidv4();
+  await insertResetToken(identifier, resetToken);
+
+  return { resetToken };
+};
+
+export const resetPassword = async ({ resetToken, newPassword }: ResetPasswordInput) => {
+  const tokenEntry = await db.query.resetTokens.findFirst({
+    where: eq(resetTokens.token, resetToken),
+  });
+
+  if (!tokenEntry || tokenEntry.expiresAt < new Date()) {
+    throw new AppError(ERRORS.INVALID_TOKEN);
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+
+  await db
+    .update(users)
+    .set({ passwordHash: passwordHash })
+    .where(eq(users.email, tokenEntry.identifier));
+
+  await invalidateResetToken(resetToken);
 };

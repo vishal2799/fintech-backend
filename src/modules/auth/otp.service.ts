@@ -60,29 +60,46 @@ export const verifyOtp = async (data: { identifier: string; otp: string; type: s
 };
 
 
-// export const verifyOtp = async (data: { identifier: string; otp: string; type: string }) => {
-//   const now = new Date();
+// 🔹 Generate a new OTP
+export const generateOtp = async ({
+  identifier,
+  purpose, // renamed from type
+}: {
+  identifier: string;
+  purpose: string;
+}) => {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = dayjs().add(10, 'minutes').toDate();
 
-//   const [record] = await db
-//     .select()
-//     .from(otpTable)
-//     .where(
-//       and(
-//         eq(otpTable.identifier, data.identifier),
-//         eq(otpTable.otp, data.otp),
-//         eq(otpTable.type, data.type),
-//         eq(otpTable.isUsed, false)
-//       )
-//     )
-//     .orderBy(desc(otpTable.createdAt));
+  await db.insert(otpTable).values({
+    identifier,
+    type: purpose,
+    otp: code,
+    expiresAt,
+    isUsed: false,
+  });
 
-//   if (!record) throw new AppError(ERRORS.INVALID_OTP);
-//   if (record.expiresAt < now) throw new AppError(ERRORS.INVALID_OTP);
+  // In prod: replace with real email/SMS
+  console.log(`Generated OTP ${code} for ${identifier} [${purpose}]`);
 
-//   await db
-//     .update(otpTable)
-//     .set({ isUsed: true })
-//     .where(eq(otpTable.id, record.id));
+  return code;
+};
 
-//   return { success: true, message: 'OTP verified' };
-// };
+// 🔹 Fetch the latest OTP (e.g., to send it via email/SMS)
+export const getLatestOtp = async (identifier: string, purpose: string) => {
+  const [record] = await db
+    .select()
+    .from(otpTable)
+    .where(
+      and(
+        eq(otpTable.identifier, identifier),
+        eq(otpTable.type, purpose),
+        eq(otpTable.isUsed, false)
+      )
+    )
+    .orderBy(desc(otpTable.createdAt))
+    .limit(1);
+
+  if (!record) throw new AppError(ERRORS.INVALID_OTP);
+  return record.otp;
+};

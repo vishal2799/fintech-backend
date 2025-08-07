@@ -74,3 +74,21 @@ export const logout = asyncHandler(async (req: Request<{}, {}, LogoutInput>, res
   return successHandler(res, { data: null, ...AUTH_RESPONSE.LOGOUT_SUCCESS });
 });
 
+export const requestPasswordReset = asyncHandler(async (req, res) => {
+  const { email } = (req as any).validated;
+
+  await AuthService.requestPasswordReset(email);
+  return successHandler(res, {data:null, ...AUTH_RESPONSE.RESET_EMAIL_SENT});
+});
+
+export const verifyResetOtp = asyncHandler(async (req: Request, res: Response) => {
+  const data = (req as any).validated;
+  const resetToken = await AuthService.verifyResetOtp(data);
+  return successHandler(res, {data:resetToken, ...AUTH_RESPONSE.OTP_VERIFIED});
+});
+
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const data = (req as any).validated;
+  await AuthService.resetPassword(data);
+  return successHandler(res, {data:null, ...AUTH_RESPONSE.PASSWORD_UPDATED});
+});

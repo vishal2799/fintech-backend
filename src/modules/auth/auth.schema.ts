@@ -25,3 +25,21 @@ export const logoutSchema = z.object({
   token: z.string().min(10, 'Token is required'),
 });
 export type LogoutInput = z.infer<typeof logoutSchema>;
+
+export const requestPasswordResetSchema = z.object({
+  email: z.string().email(),
+});
+
+export const verifyResetOtpSchema = z.object({
+  identifier: z.string().min(5), // email or phone
+  otp: z.string().min(4).max(6),
+});
+
+export type VerifyResetOtpInput = z.infer<typeof verifyResetOtpSchema>;
+
+export const resetPasswordSchema = z.object({
+  resetToken: z.string().min(10),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
