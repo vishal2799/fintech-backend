@@ -3,7 +3,7 @@ import * as TenantController from './tenant.controller';
 import { requireAuth } from '../../middlewares/requireAuth';
 import { roleCheck } from '../../middlewares/roleCheck';
 import { Roles } from '../../constants/roles';
-import { createTenantSchema, updateTenantSchema, updateTenantStatusSchema } from './tenant.schema';
+import { createTenantSchema, updateLogoSchema, updateTenantSchema, updateTenantStatusSchema, uploadLogoSchema } from './tenant.schema';
 import { validate } from '../../middlewares/validate';
 import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../constants/audit.constants';
 import { withAuditContext } from '../../middlewares/auditContext';
@@ -40,6 +40,8 @@ router.patch('/:id',
   validate(updateTenantSchema), TenantController.updateTenant
 );
 
-
+router.post("/logo/upload-url", requireAuth, validate(uploadLogoSchema), TenantController.getTenantLogoUploadUrl);
+router.post("/logo/update", requireAuth, validate(updateLogoSchema), TenantController.updateTenantLogoKey);
+router.get("/logo/:tenantId", requireAuth, TenantController.getTenantLogoUrl);
 
 export default router;

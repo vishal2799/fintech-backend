@@ -18,3 +18,4 @@ export * from './otpTokens';
 export * from './authLogins';
 export * from './supportTickets'
 export * from './resetTokens';
+export * from './documents';

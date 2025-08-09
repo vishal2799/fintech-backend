@@ -8,6 +8,7 @@ import { ERRORS } from '../../constants/errorCodes';
 import { db } from '../../db';
 import { eq, or } from 'drizzle-orm';
 import { tenants } from '../../db/schema';
+import * as storageService from "../../services/storage.service";
 
 export const createTenant = asyncHandler(async (req: Request, res: Response) => {
   const data = (req as any).validated;
@@ -56,6 +57,66 @@ export const getTenantDetails = asyncHandler(async (req: Request, res: Response)
     message: 'Tenant Details'
   });
 });
+
+
+export const getTenantLogoUploadUrl = asyncHandler(async (req, res) => {
+  const { tenantId, fileName, mimeType } = (req as any).validated;
+
+  const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+  if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+  const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType);
+  return successHandler(res, { data: {uploadUrl, fileKey} });
+});
+
+export const updateTenantLogoKey = asyncHandler(async (req, res) => {
+  const { tenantId, fileKey } = (req as any).validated;
+
+  const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+  if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+  await db.update(tenants)
+    .set({ logoUrl: fileKey, updatedAt: new Date() })
+    .where(eq(tenants.id, tenantId));
+
+  return successHandler(res, { data: fileKey });
+});
+
+// Returns a fresh presigned GET URL for the tenant's stored logo key (if present)
+export const getTenantLogoUrl = asyncHandler(async (req, res) => {
+  const { tenantId } = req.params;
+  const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+  if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+  if (!tenant.logoUrl) return successHandler(res, { data: {downloadUrl: null} });
+
+  const downloadUrl = await storageService.generateDownloadUrl(tenant.logoUrl);
+  return successHandler(res, { data: {downloadUrl, fileKey: tenant.logoUrl} });
+});
+
+
+// export const getTenantLogoUploadUrl = asyncHandler(async (req, res) => {
+//   const { tenantId, fileName, mimeType } = (req as any).validated;
+
+//   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+//   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+//   const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType);
+//   return successHandler(res, {data: {uploadUrl, fileKey} });
+// });
+
+// export const updateTenantLogoUrl = asyncHandler(async (req, res) => {
+//   const { tenantId, fileKey } = (req as any).validated;
+//   console.log('CORS request origin:', req.get('origin'));
+
+//   const logoUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
+
+//   await db.update(tenants)
+//     .set({ logoUrl, updatedAt: new Date() })
+//     .where(eq(tenants.id, tenantId));
+
+//   return successHandler(res, { data: logoUrl });
+// });
 
 
 // export const getTenantDetails = asyncHandler(async (req, res) => {
