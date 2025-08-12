@@ -12,7 +12,8 @@ type StaticRole = 'SUPER_ADMIN' | 'WL_ADMIN' | 'SD' | 'D' | 'R' | 'EMPLOYEE';
 /* -------------------------------- Get users by role ------------------------------- */
 export const getUsersByStaticRole = async (
   tenantId: string,
-  staticRole: StaticRole
+  staticRole: StaticRole,
+  isSuperAdmin = false
 ) => {
   if (staticRole === Roles.EMPLOYEE) {
     const rows = await db
@@ -31,7 +32,7 @@ export const getUsersByStaticRole = async (
       .leftJoin(userRoles, eq(userRoles.userId, users.id))
       .leftJoin(roles, eq(roles.id, userRoles.roleId))
       .where(
-        and(eq(users.tenantId, tenantId), eq(users.staticRole, Roles.EMPLOYEE))
+        isSuperAdmin ? eq(users.staticRole, Roles.EMPLOYEE) : and(eq(users.tenantId, tenantId), eq(users.staticRole, Roles.EMPLOYEE))
       );
 
     return rows.map((u) => ({
@@ -44,7 +45,10 @@ export const getUsersByStaticRole = async (
   return db
     .select()
     .from(users)
-    .where(and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole)));
+    .where(
+      isSuperAdmin ? eq(users.staticRole, staticRole) : and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole))
+    )
+    // .where(and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole)));
 };
 
 /* -------------------------- Create user with static role -------------------------- */

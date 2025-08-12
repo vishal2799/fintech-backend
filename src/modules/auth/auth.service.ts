@@ -9,6 +9,7 @@ import {
   rolePermissions,
   permissions,
   resetTokens,
+  tenants,
 } from '../../db/schema';
 import { AppError } from '../../utils/AppError';
 import {
@@ -32,42 +33,8 @@ import { FEATURE_FLAGS } from '../../config';
 import { sendPasswordResetOtp } from './sendgrid.service';
 import { insertResetToken, invalidateResetToken } from './reset-token';
 import { hashPassword } from '../../utils/hash';
+import { Roles } from '../../constants/roles';
 
-
-// export const login = async ({ email, password }: LoginInput) => {
-//   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
-//   if (!user || !user.passwordHash)
-//     throw new AppError(ERRORS.INVALID_CREDENTIALS);
-
-//   const match = await bcrypt.compare(password, user.passwordHash);
-//   if (!match) throw new AppError(ERRORS.INVALID_CREDENTIALS);
-
-//   const { roleNames, permissionNames } = await getUserRolesAndPermissions(user.id, !!user.isEmployee, user.staticRole);
-
-//   const payload = {
-//     name: user.name,
-//     email: user.email,
-//     userId: user.id,
-//     tenantId: user.tenantId,
-//     staticRole: user.staticRole || undefined,
-//     isEmployee: user.isEmployee,
-//     roleNames,
-//     permissions: permissionNames,
-//   };
-
-//   const accessToken = generateAccessToken(payload);
-//   const refreshToken = generateRefreshToken(payload);
-
-//   await db.insert(sessions).values({
-//     id: uuidv4(),
-//     userId: user.id,
-//     tenantId: user.tenantId,
-//     token: refreshToken,
-//     expiresAt: new Date(Date.now() + 7 * 86400000),
-//   });
-
-//   return { accessToken, refreshToken };
-// };
 
 export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?: any }) => {
   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
@@ -118,6 +85,82 @@ export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?:
 
   return { identifier: user.email };
 };
+
+// export const login = async (
+//   {
+//     email,
+//     password,
+//     tenantSlug,  // new input param for tenant context (optional for superadmin)
+//     ipInfo,
+//   }: LoginInput & { tenantSlug?: string; ipInfo?: any }
+// ) => {
+//   // Fetch user by email first
+//   const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+//   if (!user || !user.email || !user.passwordHash) {
+//     await logLoginAttempt({
+//       email,
+//       status: 'FAILED',
+//       reason: 'User not found',
+//       ...ipInfo,
+//     });
+//     throw new AppError(ERRORS.INVALID_CREDENTIALS);
+//   }
+
+//   //If not superadmin, tenantSlug is required and user must belong to that tenant
+//   // if (user.staticRole !== Roles.SUPER_ADMIN) {
+//   //   if (!tenantSlug) {
+//   //     // throw new AppError('Tenant is required for non-superadmin users');
+//   //           throw new AppError(ERRORS.UNAUTHORIZED_ACCESS);
+//   //   }
+
+//   //   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.slug, tenantSlug) });
+//   //   if (!tenant) {
+//   //     throw new AppError(ERRORS.INVALID_TENANT);
+//   //   }
+
+//   //   if (user.tenantId !== tenant.id) {
+//   //     // throw new AppError('User does not belong to this tenant');
+//   //           throw new AppError(ERRORS.USER_NOT_FOUND);
+//   //   }
+//   // }
+
+//   // Check password
+//   const match = await bcrypt.compare(password, user.passwordHash);
+//   if (!match) {
+//     await logLoginAttempt({
+//       email,
+//       userId: user.id,
+//       status: 'FAILED',
+//       reason: 'Incorrect password',
+//       ...ipInfo,
+//     });
+//     throw new AppError(ERRORS.INVALID_CREDENTIALS);
+//   }
+
+//   // OTP sending logic (unchanged)
+//   if (FEATURE_FLAGS.useTwilioOtp) {
+//     if (!user.mobile) {
+//       throw new AppError(ERRORS.USER_NOT_FOUND);
+//     }
+//     await TwilioOtpService.TwilioOtpService.sendOtp({ identifier: user.mobile });
+//   } else {
+//     await OtpService.sendOtp({
+//       identifier: user.email,
+//       type: 'LOGIN',
+//     });
+//   }
+
+//   await logLoginAttempt({
+//     email,
+//     userId: user.id,
+//     status: 'SUCCESS',
+//     reason: 'OTP sent',
+//     ...ipInfo,
+//   });
+
+//   return { identifier: user.email };
+// };
+
 
 export const verifyOtpLogin = async ({
   identifier,

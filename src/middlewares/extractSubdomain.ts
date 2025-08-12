@@ -18,6 +18,8 @@ export const extractSubdomain = (req: Request, res: Response, next: NextFunction
   console.log('🌐 Extracted Subdomain:', subdomain);
 
   (req as any).subdomain = subdomain;
+  // (req as any).domain = hostname; // full domain without port
+
   next();
 };
 

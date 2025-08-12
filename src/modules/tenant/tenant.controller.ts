@@ -65,9 +65,11 @@ export const getTenantLogoUploadUrl = asyncHandler(async (req, res) => {
   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
 
-  const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType);
-  return successHandler(res, { data: {uploadUrl, fileKey} });
+  // specify docType = 'logo' explicitly
+  const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType, 'logo');
+  return successHandler(res, { data: { uploadUrl, fileKey } });
 });
+
 
 export const updateTenantLogoKey = asyncHandler(async (req, res) => {
   const { tenantId, fileKey } = (req as any).validated;
