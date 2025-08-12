@@ -6,10 +6,17 @@ import { hashPassword } from '../../utils/hash';
 import { Roles } from '../../constants/roles';
 import type { CreateWLAdminInput, UpdateWLAdminInput, UpdateWLAdminStatusInput } from './wlAdmin.schema';
 import { RESPONSE } from '../../constants/responseMessages';
+import { sendWLAdminWelcomeEmail } from '../../templates/email/WlAdminWelcome';
+import { eq, or } from 'drizzle-orm';
+import { db } from '../../db';
+import { tenants } from '../../db/schema';
+import { AppError } from '../../utils/AppError';
+import { ERRORS } from '../../constants/errorCodes';
 
 export const listWLAdmins = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
-  const users = await UserService.getUsersByStaticRole(tenantId, Roles.WL_ADMIN);
+  const isSuperAdmin = req.user?.staticRole === Roles.SUPER_ADMIN;
+  const users = await UserService.getUsersByStaticRole(tenantId, Roles.WL_ADMIN, isSuperAdmin);
 
   return successHandler(res, {
     data: users,
@@ -31,6 +38,25 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     mobile,
     passwordHash,
     staticRole: Roles.WL_ADMIN,
+    // forcePasswordChange: true
+  });
+
+    const tenant = await db.query.tenants.findFirst({
+      where: eq(tenants.id, tenantId)
+    });
+
+      if (!tenant?.name) {
+        throw new AppError(ERRORS.TENANT_NOT_FOUND);
+      }
+
+
+  await sendWLAdminWelcomeEmail({
+    to: 'sharma.vishal2799@gmail.com',
+    name,
+    portalUrl: `wl1.localhost:5173`,
+    username: email,
+    password,
+    tenantName: tenant?.name
   });
 
   return successHandler(res, {
@@ -38,6 +64,29 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     ...RESPONSE.WL_ADMIN.CREATED
   });
 });
+
+
+// export const createWLAdmin = asyncHandler(async (req: Request, res: Response) => {
+//   const data = (req as any).validated as CreateWLAdminInput;
+//   const { name, email, mobile, password, tenantId } = data;
+
+//   const passwordHash = await hashPassword(password);
+
+//   const result = await UserService.createUserWithStaticRole({
+//     tenantId,
+//     parentId: null,
+//     name,
+//     email,
+//     mobile,
+//     passwordHash,
+//     staticRole: Roles.WL_ADMIN,
+//   });
+
+//   return successHandler(res, {
+//     data: result,
+//     ...RESPONSE.WL_ADMIN.CREATED
+//   });
+// });
 
 export const updateWLAdmin = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
