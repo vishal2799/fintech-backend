@@ -50,14 +50,14 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
       }
 
 
-  await sendWLAdminWelcomeEmail({
-    to: 'sharma.vishal2799@gmail.com',
-    name,
-    portalUrl: `wl1.localhost:5173`,
-    username: email,
-    password,
-    tenantName: tenant?.name
-  });
+  // await sendWLAdminWelcomeEmail({
+  //   to: 'sharma.vishal2799@gmail.com',
+  //   name,
+  //   portalUrl: `wl1.localhost:5173`,
+  //   username: email,
+  //   password,
+  //   tenantName: tenant?.name
+  // });
 
   return successHandler(res, {
     data: result,
