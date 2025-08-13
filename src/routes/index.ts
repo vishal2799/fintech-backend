@@ -14,6 +14,7 @@ import stRoutes from '../modules/support-ticket/supportTicket.routes';
 import walletRoutes from '../modules/wallet/wallet.routes';
 import wladminRoutes from '../modules/wl-admin/wlAdmin.routes';
 import logRoutes from '../modules/audit-logs/auditLogs.routes';
+import bankRoutes from '../modules/companyBankAccounts/companyBankAccounts.routes';
 import { withAuditContext } from '../middlewares/auditContext';
 
 const router = Router()
@@ -21,6 +22,7 @@ const router = Router()
 router.use('/auth', authRoutes)
 router.use('/permissions', permissionRoutes)
 router.use('/roles', rolesRoutes)
+router.use('/banks', bankRoutes)
 router.use('/employees', employeesRoutes)
 router.use('/services', servicesRoutes)
 router.use('/support-tickets', stRoutes)

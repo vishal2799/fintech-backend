@@ -27,6 +27,12 @@ export const ERRORS = {
     status: 404,
   },
 
+  BANK_ACCOUNT_NOT_FOUND: {
+    message: 'Bank account not found',
+    code: 'BANK_ACCOUNT_NOT_FOUND',
+    status: 404,
+  },
+
   SERVICE_NOT_FOUND: {
     message: 'Service not found',
     code: 'SERVICE_NOT_FOUND',

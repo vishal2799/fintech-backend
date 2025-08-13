@@ -34,6 +34,11 @@ export const getAllCreditRequests = asyncHandler(async (_req: Request, res: Resp
   return successHandler(res, { data, message: 'Fetched All Credit Requests Successfully' });
 });
 
+export const getPendingCreditRequests = asyncHandler(async (_req: Request, res: Response) => {
+  const data = await WalletService.getPendingCreditRequests();
+  return successHandler(res, { data, message: 'Fetched Pending Credit Requests Successfully' });
+});
+
 export const approveCreditRequest = asyncHandler(async (req: Request, res: Response) => {
 
   const userId = req.user?.id;

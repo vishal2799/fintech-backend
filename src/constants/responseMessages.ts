@@ -89,6 +89,25 @@ export const RESPONSE = {
     },
   },
 
+  BANK_ACCOUNT: {
+    CREATED: {
+      message: 'Bank account created',
+      status: 201,
+    },
+    UPDATED: {
+      message: 'Bank account updated',
+      status: 200,
+    },
+    DELETED: {
+      message: 'Bank account deleted',
+      status: 200,
+    },
+    NOT_FOUND: {
+      message: 'Bank account not found',
+      status: 404,
+    },
+  },
+
   WALLET: {
     CREDIT_REQUESTED: {
       message: 'Credit request submitted',
