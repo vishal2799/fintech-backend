@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { eq, inArray } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { db } from '../../db';
 import {
   users,
@@ -10,6 +10,7 @@ import {
   permissions,
   resetTokens,
   tenants,
+  authLogins,
 } from '../../db/schema';
 import { AppError } from '../../utils/AppError';
 import {
@@ -385,4 +386,8 @@ export const resetPassword = async ({ resetToken, newPassword }: ResetPasswordIn
     .where(eq(users.email, tokenEntry.identifier));
 
   await invalidateResetToken(resetToken);
+};
+
+export const getAllLogs = async () => {
+    return await db.select().from(authLogins).orderBy(desc(authLogins.createdAt));
 };

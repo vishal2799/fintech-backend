@@ -92,3 +92,9 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
   await AuthService.resetPassword(data);
   return successHandler(res, {data:null, ...AUTH_RESPONSE.PASSWORD_UPDATED});
 });
+
+
+export const getAllLogs = asyncHandler(async (req: Request, res: Response) => {
+  const logs = await AuthService.getAllLogs();
+  return successHandler(res, {data:logs, ...AUTH_RESPONSE.OTP_VERIFIED});
+});

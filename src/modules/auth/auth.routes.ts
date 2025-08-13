@@ -64,4 +64,9 @@ router.post(
   validate(resetPasswordSchema),
   AuthController.resetPassword
 );
+
+router.get(
+  "/auth-logins",
+  AuthController.getAllLogs
+);
 export default router;
