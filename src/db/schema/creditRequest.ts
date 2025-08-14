@@ -20,6 +20,7 @@ export const creditRequest = pgTable('credit_request', {
   requestedByUserId: uuid('requested_by_user_id').notNull(),
   approvedByUserId: uuid('approved_by_user_id'),
   remarks: text('remarks'),
+  proofUrl: text('proof_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });

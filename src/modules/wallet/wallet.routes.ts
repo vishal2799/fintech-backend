@@ -16,11 +16,17 @@ import {
   holdWalletSchema,
   releaseWalletSchema,
   requestCreditSchema,
+  uploadProofSchema,
+  updateProofSchema,
 } from './wallet.schema';
 
 const router = Router();
 
 router.use(requireAuth);
+
+router.post("/proof/upload-url", validate(uploadProofSchema), Controller.getProofUploadUrl);
+router.post("/proof/update", validate(updateProofSchema), Controller.updateProofKey);
+router.get("/proof/:creditRequestId", Controller.getProofUrl);
 
 // ------------------- WL Admin Routes -------------------
 

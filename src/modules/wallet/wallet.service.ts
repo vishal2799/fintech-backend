@@ -56,15 +56,15 @@ export const requestCredit = async ({
 }) => {
   await ensureTenantWalletExists(tenantId);
 
-  await db.insert(creditRequest).values({
+  const res = await db.insert(creditRequest).values({
     fromTenantId: tenantId,
     amount: amount.toString(),
     requestedByUserId,
     remarks,
     status: 'PENDING',
-  });
+  }).returning();
 
-  return { success: true, message: 'Credit request submitted.' };
+  return { data: res[0],success: true, message: 'Credit request submitted.' };
 };
 
 export const getAllCreditRequests = async () => {

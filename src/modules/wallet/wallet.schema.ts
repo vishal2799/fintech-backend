@@ -52,3 +52,15 @@ export const releaseWalletSchema = z.object({
   // userId: z.string(), // admin performing the release
 });
 export type ReleaseWalletInput = z.infer<typeof releaseWalletSchema>;
+
+
+export const uploadProofSchema = z.object({
+  creditRequestId: z.string().uuid(),
+  fileName: z.string(),
+  mimeType: z.string()
+});
+
+export const updateProofSchema = z.object({
+  creditRequestId: z.string().uuid(),
+  fileKey: z.string()
+});

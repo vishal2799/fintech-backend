@@ -18,6 +18,10 @@ import {
   ApproveRejectInput,
 } from './wallet.schema';
 import { ERRORS } from '../../constants/errorCodes';
+import * as storageService from "../../services/storage.service";
+import { db } from '../../db';
+import { eq } from 'drizzle-orm';
+import { creditRequest, tenants } from '../../db/schema';
 
 // ✅ Super Admin APIs
 
@@ -198,4 +202,46 @@ export const listTenantWallets = asyncHandler(async (_req, res) => {
     message: 'Tenant wallet list fetched successfully',
     status: 200,
   });
+});
+
+
+export const getProofUploadUrl = asyncHandler(async (req, res) => {
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+    const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+
+    if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+    const { creditRequestId, fileName, mimeType } = (req as any).validated;
+
+  const creditRequestt = await db.query.creditRequest.findFirst({ where: eq(creditRequest?.id, creditRequestId) });
+  if (!creditRequestt) throw new AppError(ERRORS.CREDIT_REQUEST_NOT_FOUND);
+
+  const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType, 'receipt', '', creditRequestId);
+  return successHandler(res, { data: { uploadUrl, fileKey } });
+});
+
+
+export const updateProofKey = asyncHandler(async (req, res) => {
+  const { creditRequestId, fileKey } = (req as any).validated;
+
+  const creditRequestt = await db.query.creditRequest.findFirst({ where: eq(creditRequest.id, creditRequestId) });
+  if (!creditRequestt) throw new AppError(ERRORS.CREDIT_REQUEST_NOT_FOUND);
+
+  await db.update(creditRequest)
+    .set({ proofUrl: fileKey, updatedAt: new Date() })
+    .where(eq(creditRequest.id, creditRequestId));
+
+  return successHandler(res, { data: fileKey });
+});
+
+export const getProofUrl = asyncHandler(async (req, res) => {
+  const { creditRequestId } = req.params;
+  const creditRequestt = await db.query.creditRequest.findFirst({ where: eq(creditRequest.id, creditRequestId) });
+  if (!creditRequestt) throw new AppError(ERRORS.CREDIT_REQUEST_NOT_FOUND);
+
+  if (!creditRequestt.proofUrl) return successHandler(res, { data: {downloadUrl: null} });
+
+  const downloadUrl = await storageService.generateDownloadUrl(creditRequestt.proofUrl);
+  return successHandler(res, { data: {downloadUrl, fileKey: creditRequestt.proofUrl} });
 });

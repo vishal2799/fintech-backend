@@ -97,30 +97,6 @@ export const getTenantLogoUrl = asyncHandler(async (req, res) => {
 });
 
 
-// export const getTenantLogoUploadUrl = asyncHandler(async (req, res) => {
-//   const { tenantId, fileName, mimeType } = (req as any).validated;
-
-//   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
-//   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
-
-//   const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType);
-//   return successHandler(res, {data: {uploadUrl, fileKey} });
-// });
-
-// export const updateTenantLogoUrl = asyncHandler(async (req, res) => {
-//   const { tenantId, fileKey } = (req as any).validated;
-//   console.log('CORS request origin:', req.get('origin'));
-
-//   const logoUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
-
-//   await db.update(tenants)
-//     .set({ logoUrl, updatedAt: new Date() })
-//     .where(eq(tenants.id, tenantId));
-
-//   return successHandler(res, { data: logoUrl });
-// });
-
-
 // export const getTenantDetails = asyncHandler(async (req, res) => {
 //   const subdomain = (req as any).subdomain;
 //   if (!subdomain || subdomain === 'superadmin') throw new AppError(ERRORS.INVALID_TENANT);
