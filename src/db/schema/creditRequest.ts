@@ -12,23 +12,10 @@ export const creditRequestMethod = pgEnum('credit_request_method', [
   'MANUAL_BANK',
 ]);
 
-// export const creditRequest = pgTable('credit_request', {
-//   id: uuid('id').defaultRandom().primaryKey(),
-//   fromTenantId: uuid('from_tenant_id').notNull(),
-//   amount: numeric('amount').notNull(),
-//   status: creditRequestStatus('status').default('PENDING').notNull(),
-//   requestedByUserId: uuid('requested_by_user_id').notNull(),
-//   approvedByUserId: uuid('approved_by_user_id'),
-//   remarks: text('remarks'),
-//   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-//   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-// });
-
 export const creditRequest = pgTable('credit_request', {
   id: uuid('id').defaultRandom().primaryKey(),
   fromTenantId: uuid('from_tenant_id').notNull(),
   amount: numeric('amount').notNull(),
-  method: creditRequestMethod('method').notNull(),
   status: creditRequestStatus('status').default('PENDING').notNull(),
   requestedByUserId: uuid('requested_by_user_id').notNull(),
   approvedByUserId: uuid('approved_by_user_id'),
@@ -36,6 +23,19 @@ export const creditRequest = pgTable('credit_request', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
+
+// export const creditRequest = pgTable('credit_request', {
+//   id: uuid('id').defaultRandom().primaryKey(),
+//   fromTenantId: uuid('from_tenant_id').notNull(),
+//   amount: numeric('amount').notNull(),
+//   method: creditRequestMethod('method').notNull(),
+//   status: creditRequestStatus('status').default('PENDING').notNull(),
+//   requestedByUserId: uuid('requested_by_user_id').notNull(),
+//   approvedByUserId: uuid('approved_by_user_id'),
+//   remarks: text('remarks'),
+//   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+//   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+// });
 
 export const manualCreditRequest = pgTable('manual_credit_request', {
   id: uuid('id').defaultRandom().primaryKey(),
