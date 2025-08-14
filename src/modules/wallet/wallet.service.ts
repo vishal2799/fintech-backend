@@ -1,6 +1,7 @@
 import { desc, eq, and, ne } from 'drizzle-orm';
 import { db } from '../../db';
 import {
+  companyBankAccounts,
   creditRequest,
   tenants,
   tenantWallet,
@@ -48,16 +49,19 @@ export const requestCredit = async ({
   amount,
   requestedByUserId,
   remarks,
+  bankId
 }: {
   tenantId: string;
   amount: number;
   requestedByUserId: string;
+  bankId: string;
   remarks?: string;
 }) => {
   await ensureTenantWalletExists(tenantId);
 
   const res = await db.insert(creditRequest).values({
     fromTenantId: tenantId,
+    bankId,
     amount: amount.toString(),
     requestedByUserId,
     remarks,
@@ -80,6 +84,7 @@ export const getAllCreditRequests = async () => {
       fromTenantId: creditRequest.fromTenantId,
       requestedByUserId: creditRequest.requestedByUserId,
       approvedByUserId: creditRequest.approvedByUserId,
+      bankName: companyBankAccounts.bankName,
 
       tenantName: tenants.name,
       requestedByUserName: users.name,
@@ -87,6 +92,7 @@ export const getAllCreditRequests = async () => {
     .from(creditRequest)
     .where(ne(creditRequest.status, 'PENDING'))
     .leftJoin(tenants, eq(creditRequest.fromTenantId, tenants.id))
+    .leftJoin(companyBankAccounts, eq(creditRequest.bankId, companyBankAccounts.id))
     .leftJoin(users, eq(creditRequest.requestedByUserId, users.id))
     .orderBy(desc(creditRequest.createdAt));
 };
@@ -105,12 +111,15 @@ export const getPendingCreditRequests = async () => {
       requestedByUserId: creditRequest.requestedByUserId,
       approvedByUserId: creditRequest.approvedByUserId,
 
+      bankName: companyBankAccounts.bankName,
+
       tenantName: tenants.name,
       requestedByUserName: users.name,
     })
     .from(creditRequest)
     .where(eq(creditRequest.status, 'PENDING'))
     .leftJoin(tenants, eq(creditRequest.fromTenantId, tenants.id))
+    .leftJoin(companyBankAccounts, eq(creditRequest.bankId, companyBankAccounts.id))
     .leftJoin(users, eq(creditRequest.requestedByUserId, users.id))
     .orderBy(desc(creditRequest.createdAt));
 };

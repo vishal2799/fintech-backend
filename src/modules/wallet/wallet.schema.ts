@@ -6,6 +6,7 @@ export const requestCreditSchema = z.object({
   // requestedByUserId: z.string(),
   amount: z.number().positive(),
   remarks: z.string().optional(),
+  bankId: z.string()
 });
 export type RequestCreditInput = z.infer<typeof requestCreditSchema>;
 
