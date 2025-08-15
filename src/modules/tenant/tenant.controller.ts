@@ -33,18 +33,49 @@ export const listAllTenants = asyncHandler(async (_req: Request, res: Response) 
   return successHandler(res, { data, ...RESPONSE.TENANT.LISTED });
 });
 
+// export const getTenantDetails = asyncHandler(async (req: Request, res: Response) => {
+//   const subdomain = (req as any).subdomain;
+//   const host = req.headers.host?.split(':')[0] ?? ''; // ensures string
+
+//   if (subdomain === 'superadmin' || host === 'superadmin.localhost') {
+//     throw new AppError(ERRORS.INVALID_TENANT);
+//   }
+
+//   const tenant = await db.query.tenants.findFirst({
+//     where: or(
+//       eq(tenants.slug, subdomain ?? ''),             // for subdomain-based tenants
+//       eq(tenants.domainCname, host)                 // for custom domain tenants
+//     )
+//   });
+
+//   if (!tenant) {
+//     throw new AppError(ERRORS.TENANT_NOT_FOUND);
+//   }
+
+//   return successHandler(res, {
+//     data: tenant,
+//     message: 'Tenant Details'
+//   });
+// });
+
 export const getTenantDetails = asyncHandler(async (req: Request, res: Response) => {
   const subdomain = (req as any).subdomain;
-  const host = req.headers.host?.split(':')[0] ?? ''; // ensures string
+  const host = req.headers.host?.split(':')[0] ?? ''; // e.g. localhost, wl1.localhost, domain.com
+  const tenantId = req.params.tenantId || req.query.tenantId; // dev override
+  const xSubdomain = req.headers['x-subdomain'] as string;    // optional override
 
-  if (subdomain === 'superadmin' || host === 'superadmin.localhost') {
+  // Use fallback logic for development
+  const lookupKey = subdomain || xSubdomain || tenantId || null;
+
+  // Prevent superadmin from being treated as a tenant
+  if (lookupKey === 'superadmin' || host === 'superadmin.localhost') {
     throw new AppError(ERRORS.INVALID_TENANT);
   }
 
   const tenant = await db.query.tenants.findFirst({
     where: or(
-      eq(tenants.slug, subdomain ?? ''),             // for subdomain-based tenants
-      eq(tenants.domainCname, host)                 // for custom domain tenants
+      eq(tenants.slug, lookupKey ?? ''), // match subdomain or dev override
+      eq(tenants.domainCname, host)      // match custom domain
     )
   });
 
