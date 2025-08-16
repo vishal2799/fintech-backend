@@ -55,7 +55,7 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     await sendWLAdminWelcomeEmail({
       to: email, // use actual user email
       name,
-      portalUrl: `wl1.localhost:5173`,
+      portalUrl: `${process.env.PORTAL_URL}/tenants/${tenant.slug}/login`,
       username: email,
       password,
       tenantName: tenant.name,
