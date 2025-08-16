@@ -5,8 +5,8 @@ import { eq, and, desc } from 'drizzle-orm';
 import dayjs from 'dayjs';
 import { ERRORS } from '../../constants/errorCodes';
 
-export const sendOtp = async (data: { identifier: string; type: string }) => {
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+export const sendOtp = async (data: { identifier: string; type: string, staticOTP?:boolean }) => {
+  const code = data.staticOTP ? '123456' : Math.floor(100000 + Math.random() * 900000).toString();
 
   const expiresAt = dayjs().add(5, 'minutes').toDate();
 

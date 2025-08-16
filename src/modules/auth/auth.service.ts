@@ -69,6 +69,12 @@ export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?:
     throw new AppError(ERRORS.USER_NOT_FOUND);
   }
   await TwilioOtpService.TwilioOtpService.sendOtp({ identifier: user.mobile });
+      } else if(process.env.USE_STATIC_OTP === 'true'){
+         await OtpService.sendOtp({
+    identifier: user.email,
+    type: 'LOGIN',
+    staticOTP: true
+  });
       } else {
   await OtpService.sendOtp({
     identifier: user.email,
