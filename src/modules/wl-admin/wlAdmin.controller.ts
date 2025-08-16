@@ -12,6 +12,7 @@ import { db } from '../../db';
 import { tenants } from '../../db/schema';
 import { AppError } from '../../utils/AppError';
 import { ERRORS } from '../../constants/errorCodes';
+import { FEATURE_FLAGS } from '../../config';
 
 export const listWLAdmins = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
@@ -41,27 +42,29 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     // forcePasswordChange: true
   });
 
-    const tenant = await db.query.tenants.findFirst({
-      where: eq(tenants.id, tenantId)
+  const tenant = await db.query.tenants.findFirst({
+    where: eq(tenants.id, tenantId)
+  });
+
+  if (!tenant?.name) {
+    throw new AppError(ERRORS.TENANT_NOT_FOUND);
+  }
+
+  // ✅ Send email only if feature flag is enabled
+  if (FEATURE_FLAGS.SEND_WL_ADMIN_EMAIL) {
+    await sendWLAdminWelcomeEmail({
+      to: email, // use actual user email
+      name,
+      portalUrl: `wl1.localhost:5173`,
+      username: email,
+      password,
+      tenantName: tenant.name,
     });
-
-      if (!tenant?.name) {
-        throw new AppError(ERRORS.TENANT_NOT_FOUND);
-      }
-
-
-  // await sendWLAdminWelcomeEmail({
-  //   to: 'sharma.vishal2799@gmail.com',
-  //   name,
-  //   portalUrl: `wl1.localhost:5173`,
-  //   username: email,
-  //   password,
-  //   tenantName: tenant?.name
-  // });
+  }
 
   return successHandler(res, {
     data: result,
-    ...RESPONSE.WL_ADMIN.CREATED
+    ...RESPONSE.WL_ADMIN.CREATED,
   });
 });
 
