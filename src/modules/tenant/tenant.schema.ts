@@ -27,5 +27,5 @@ export const uploadLogoSchema = z.object({
 
 export const updateLogoSchema = z.object({
   tenantId: z.string().uuid(),
-  fileKey: z.string()
+  fileKey: z.string(),
 });

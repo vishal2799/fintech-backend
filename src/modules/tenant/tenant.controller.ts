@@ -90,15 +90,31 @@ export const getTenantDetails = asyncHandler(async (req: Request, res: Response)
 });
 
 
+// export const getTenantLogoUploadUrl = asyncHandler(async (req, res) => {
+//   const { tenantId, fileName, mimeType } = (req as any).validated;
+
+//   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+//   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+//   // specify docType = 'logo' explicitly
+//   const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType, 'logo');
+//   return successHandler(res, { data: { uploadUrl, fileKey } });
+// });
+
 export const getTenantLogoUploadUrl = asyncHandler(async (req, res) => {
   const { tenantId, fileName, mimeType } = (req as any).validated;
 
   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
 
-  // specify docType = 'logo' explicitly
-  const { uploadUrl, fileKey } = await storageService.generateUploadUrl(tenantId, fileName, mimeType, 'logo');
-  return successHandler(res, { data: { uploadUrl, fileKey } });
+  const { uploadUrl, fileKey, publicUrl } = await storageService.generateUploadUrl(
+    tenantId,
+    fileName,
+    mimeType,
+    'logo'
+  );
+
+  return successHandler(res, { data: { uploadUrl, fileKey, publicUrl } });
 });
 
 
@@ -109,22 +125,37 @@ export const updateTenantLogoKey = asyncHandler(async (req, res) => {
   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
 
   await db.update(tenants)
-    .set({ logoUrl: fileKey, updatedAt: new Date() })
-    .where(eq(tenants.id, tenantId));
+  .set({ logoUrl: fileKey, updatedAt: new Date() }) // store public URL for logos
+  .where(eq(tenants.id, tenantId));
 
   return successHandler(res, { data: fileKey });
 });
 
 // Returns a fresh presigned GET URL for the tenant's stored logo key (if present)
+// export const getTenantLogoUrl = asyncHandler(async (req, res) => {
+//   const { tenantId } = req.params;
+//   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
+//   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
+
+//   if (!tenant.logoUrl) return successHandler(res, { data: {downloadUrl: null} });
+
+//   const downloadUrl = await storageService.generateDownloadUrl(tenant.logoUrl);
+//   return successHandler(res, { data: {downloadUrl, fileKey: tenant.logoUrl} });
+// });
+
 export const getTenantLogoUrl = asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   const tenant = await db.query.tenants.findFirst({ where: eq(tenants.id, tenantId) });
   if (!tenant) throw new AppError(ERRORS.TENANT_NOT_FOUND);
 
-  if (!tenant.logoUrl) return successHandler(res, { data: {downloadUrl: null} });
+  if (!tenant.logoUrl) return successHandler(res, { data: { downloadUrl: null } });
 
-  const downloadUrl = await storageService.generateDownloadUrl(tenant.logoUrl);
-  return successHandler(res, { data: {downloadUrl, fileKey: tenant.logoUrl} });
+  // If logo, it's already public
+  const downloadUrl = tenant.logoUrl.includes('https://') 
+    ? tenant.logoUrl 
+    : await storageService.generateDownloadUrl(tenant.logoUrl);
+
+  return successHandler(res, { data: { downloadUrl, fileKey: tenant.logoUrl } });
 });
 
 
