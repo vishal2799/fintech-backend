@@ -59,6 +59,7 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
       username: email,
       password,
       tenantName: tenant.name,
+      logoUrl: tenant?.logoUrl || ''
     });
   }
 

@@ -16,6 +16,10 @@ import wladminRoutes from '../modules/wl-admin/wlAdmin.routes';
 import logRoutes from '../modules/audit-logs/auditLogs.routes';
 import bankRoutes from '../modules/companyBankAccounts/companyBankAccounts.routes';
 import { withAuditContext } from '../middlewares/auditContext';
+import { asyncHandler } from '../utils/asyncHandler';
+import { db } from '../db';
+import { prewarmLogs } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
 const router = Router()
 
@@ -35,5 +39,29 @@ router.use('/wl-admin/super-distributor', sdRoutes)
 router.use('/wl-admin/distributors', dRoutes)
 router.use('/wl-admin/retailers', rRoutes)
 router.use('/logs', withAuditContext('AUDIT_LOGS', 'Audit Log'), logRoutes)
+router.get(
+  '/prewarm',
+  asyncHandler(async (req, res) => {
+    try {
+      // Minimal read to wake DB
+      await db.execute?.('SELECT 1');
 
+      // Insert a dummy prewarm log
+      const [dummyLog] = await db.insert(prewarmLogs).values({
+        tenantId: 'system',
+        status: 'ready',
+      }).returning();
+
+      // Immediately delete the dummy log to keep table clean
+      if (dummyLog && dummyLog.id) {
+        await db.delete(prewarmLogs).where(eq(prewarmLogs.id, dummyLog.id));
+      }
+
+      return res.json({ status: 'ready' });
+    } catch (err) {
+      console.error('Prewarm error:', err);
+      return res.json({ status: 'starting' });
+    }
+  })
+);
 export default router

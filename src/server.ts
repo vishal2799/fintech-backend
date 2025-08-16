@@ -5,6 +5,10 @@ import routes from './routes'
 import globalErrorHandler from './middlewares/errorHandler'
 import { auditLogger } from './middlewares/auditLogger'
 import { extractSubdomain } from './middlewares/extractSubdomain'
+import { asyncHandler } from './utils/asyncHandler'
+import { db } from './db'
+import { prewarmLogs } from './db/schema'
+import { eq } from 'drizzle-orm'
 
 dotenv.config()
 
