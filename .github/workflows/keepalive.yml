@@ -1,0 +1,21 @@
+name: Keep Render Service Alive
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # every 5 minutes (cron is in UTC)
+  workflow_dispatch:         # lets you run it manually from the Actions tab
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render health endpoint
+        env:
+          URL: ${{ secrets.RENDER_PING_URL }}
+        run: |
+          # Fail quietly so a single bad ping doesn't mark the workflow red
+          # -f: fail on HTTP >=400
+          # -sS: silent but show errors
+          # -m 10: timeout after 10 seconds
+          # --retry 3: quick retries if transient issues
+          curl -fsS -m 10 --retry 3 "$URL" || true
