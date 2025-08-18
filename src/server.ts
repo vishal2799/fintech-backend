@@ -26,6 +26,12 @@ app.get('/', (req, res) => {
   res.send('🚀 VMudra Backend is running!');
 });
 
+// health route (super light)
+app.get('/health', (_req, res) => {
+  res.status(200).send('ok');
+});
+
+
 app.use('/api', routes)
 
 // app.use('*', (req, res) => {
