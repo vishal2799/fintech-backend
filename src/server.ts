@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
 // health route (super light)
 app.get('/health', (_req, res) => {
   res.status(200).send('ok');
+  console.log('pinged');
 });
 
 
