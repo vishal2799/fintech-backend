@@ -30,6 +30,7 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
   const { name, email, mobile, password, tenantId } = data;
 
   const passwordHash = await hashPassword(password);
+  const username = `wladmin_${tenantId}`;
 
   const result = await UserService.createUserWithStaticRole({
     tenantId,
@@ -38,6 +39,7 @@ export const createWLAdmin = asyncHandler(async (req: Request, res: Response) =>
     email,
     mobile,
     passwordHash,
+    username,
     staticRole: Roles.WL_ADMIN,
     // forcePasswordChange: true
   });

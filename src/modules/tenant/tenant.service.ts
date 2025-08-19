@@ -4,6 +4,9 @@ import { tenants } from '../../db/schema';
 import { db } from '../../db';
 import { AppError } from '../../utils/AppError';
 import { ERRORS } from '../../constants/errorCodes';
+import * as UserService from '../users/users.service';
+import { hashPassword } from '../../utils/hash';
+import { Roles } from '../../constants/roles';
 
 type STATUS = 'ACTIVE' | 'DISABLED';
 
@@ -16,8 +19,33 @@ export const createTenant = async (data: {
   const existing = await db.query.tenants.findFirst({ where: eq(tenants.slug, data.slug) });
   if (existing) throw new AppError(ERRORS.SLUG_EXISTS);
 
-  const result = await db.insert(tenants).values(data).returning();
-  return result[0];
+  const [tenant] = await db.insert(tenants).values(data).returning();
+
+  // ✅ Auto-create WL Admin for this tenant
+  const username = `wladmin_${tenant.slug}`;
+  const passwordHash = await hashPassword("ChangeMe123!"); // temp password
+
+  const wladmin = await UserService.createUserWithStaticRole({
+    tenantId: tenant.id,
+    parentId: null,
+    name: username,
+    username: username,
+    passwordHash,
+    mobile: '',
+    email: '',
+    staticRole: Roles.WL_ADMIN
+  })
+
+  return {tenant, wladmin}
+
+  // const [wlAdmin] = await db.insert(users).values({
+  //   tenantId: tenant.id,
+  //   parentId: null,
+  //   name: "WL Admin",
+  //   username,
+  //   passwordHash,
+  //   role: Rol,
+  // }).returning();
 };
 
 export const updateTenant = async (

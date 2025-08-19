@@ -5,20 +5,21 @@ import { hashPassword } from '../utils/hash';
 const runSeed = async () => {
   console.log('🌱 Seeding Super Admin...');
 
-  // 1. Create default platform tenant
-  const [tenant] = await db.insert(tenants).values({
-    name: 'Platform Root Tenant',
-    slug: 'platform',
-    status: 'ACTIVE',
-  }).returning();
+  // // 1. Create default platform tenant
+  // const [tenant] = await db.insert(tenants).values({
+  //   name: 'Platform Root Tenant',
+  //   slug: 'platform',
+  //   status: 'ACTIVE',
+  // }).returning();
 
   // 2. Create Super Admin user
   const passwordHash = await hashPassword('admin123');
   await db.insert(users).values({
-    tenantId: tenant.id,
+    tenantId: 'c26b3a84-ac3b-4df7-b1dc-8f333697ddde',
     name: 'Super Admin',
     email: 'admin@vmudra.com',
     mobile: '9999999999',
+    username: 'savmudra',
     passwordHash,
     isVerified: true,
     staticRole: 'SUPER_ADMIN',  // ✅ Core part

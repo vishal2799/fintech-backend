@@ -9,7 +9,8 @@ export const users = pgTable('users', {
   name: varchar('name', { length: 100 }),
   email: varchar('email', { length: 150 }),
   mobile: varchar('mobile', { length: 20 }),
-  passwordHash: text('password_hash'),
+  passwordHash: text('password_hash').notNull(),
+  username: text("username").unique().notNull(), // ✅ new field
   isEmployee: boolean('is_employee').default(false), // true for employee users
 staticRole: varchar('static_role', {
   enum: ['SUPER_ADMIN', 'WL_ADMIN', 'SD', 'D', 'R','EMPLOYEE'],

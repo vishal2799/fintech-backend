@@ -58,6 +58,7 @@ export const createUserWithStaticRole = async ({
   name,
   email,
   mobile,
+  username,
   passwordHash,
   staticRole,
 }: {
@@ -66,6 +67,7 @@ export const createUserWithStaticRole = async ({
   name: string;
   email: string;
   mobile: string;
+  username: string;
   passwordHash: string;
   staticRole: StaticRole;
 }) => {
@@ -77,6 +79,7 @@ export const createUserWithStaticRole = async ({
     tenantId,
     parentId: parentId ?? undefined,
     name,
+    username,
     email,
     mobile,
     passwordHash,
@@ -96,6 +99,7 @@ export const createUserWithRole = async ({
   mobile,
   passwordHash,
   roleId,
+  username,
   isEmployee = false,
 }: {
   tenantId: string;
@@ -105,6 +109,7 @@ export const createUserWithRole = async ({
   mobile: string;
   passwordHash: string;
   roleId: string;
+  username: string;
   isEmployee?: boolean;
 }) => {
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
@@ -118,6 +123,7 @@ export const createUserWithRole = async ({
     parentId: parentId ?? undefined,
     name,
     email,
+    username: username,
     mobile,
     passwordHash,
     isVerified: true,
