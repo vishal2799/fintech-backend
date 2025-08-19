@@ -92,5 +92,6 @@ export const updateTenantStatus = async (id: string, status: STATUS) => {
 };
 
 export const listAllTenants = async () => {
-  return await db.select().from(tenants);
+  return await db.select().from(tenants).where(eq(tenants.type, 'TENANT'));
+;
 };
