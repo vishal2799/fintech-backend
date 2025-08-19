@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '../../db';
 import {
   users,
@@ -37,8 +37,25 @@ import { hashPassword } from '../../utils/hash';
 import { Roles } from '../../constants/roles';
 
 
-export const login = async ({ email, password, ipInfo }: LoginInput & { ipInfo?: any }) => {
-  const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+export const login = async ({ email, password, ipInfo, subdomain }: LoginInput & { ipInfo?: any, subdomain:string; }) => {
+  // const user = await db.query.users.findFirst({ where: eq(users.email, email), with: {tenant: true} });
+  // console.log(subdomain, 'sb')  
+  const [user] = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      passwordHash: users.passwordHash,
+      tenantId: tenants.id,
+      tenantSlug: tenants.slug,
+      mobile: users.mobile
+    })
+    .from(users)
+    .innerJoin(tenants, eq(users.tenantId, tenants.id))
+    .where(
+      and(eq(users.email, email), eq(tenants.slug, subdomain)) // ✅ ensures user is from that tenant
+    );
+
+  console.log(user, 'user');
   if (!user || !user.email || !user.passwordHash) {
       await logLoginAttempt({
       email,

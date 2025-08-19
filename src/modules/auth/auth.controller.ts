@@ -17,6 +17,8 @@ import { AUTH_RESPONSE } from '../../constants/responseMessages';
 // export const login = asyncHandler(async (req: Request<{}, {}, LoginInput>, res: Response) => {
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const data = (req as any).validated;
+  const subdomain = (req as any).tenant; // <-- comes from middleware
+  // console.log(subdomain, 'con')
   //use in prod
   // const ipAddress =
   // req.headers['x-forwarded-for']?.toString().split(',')[0].trim() ||
@@ -30,7 +32,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     userAgent: req.headers['user-agent'],
   };
 
-  const result = await AuthService.login({ ...data, ipInfo });
+  const result = await AuthService.login({ ...data, ipInfo, subdomain });
   return successHandler(res, { data: result, ...AUTH_RESPONSE.OTP_SENT });
 });
 
