@@ -22,21 +22,21 @@ export const createTenant = async (data: {
   const [tenant] = await db.insert(tenants).values(data).returning();
 
   // ✅ Auto-create WL Admin for this tenant
-  const username = `wladmin_${tenant.slug}`;
-  const passwordHash = await hashPassword("ChangeMe123!"); // temp password
+  // const username = `wladmin_${tenant.slug}`;
+  // const passwordHash = await hashPassword("ChangeMe123!"); // temp password
 
-  const wladmin = await UserService.createUserWithStaticRole({
-    tenantId: tenant.id,
-    parentId: null,
-    name: username,
-    username: username,
-    passwordHash,
-    mobile: '',
-    email: '',
-    staticRole: Roles.WL_ADMIN
-  })
+  // const wladmin = await UserService.createUserWithStaticRole({
+  //   tenantId: tenant.id,
+  //   parentId: null,
+  //   name: username,
+  //   username: username,
+  //   passwordHash,
+  //   mobile: '',
+  //   email: '',
+  //   staticRole: Roles.WL_ADMIN
+  // })
 
-  return {tenant, wladmin}
+  return {tenant}
 
   // const [wlAdmin] = await db.insert(users).values({
   //   tenantId: tenant.id,

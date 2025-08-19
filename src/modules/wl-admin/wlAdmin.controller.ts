@@ -13,6 +13,7 @@ import { tenants } from '../../db/schema';
 import { AppError } from '../../utils/AppError';
 import { ERRORS } from '../../constants/errorCodes';
 import { FEATURE_FLAGS } from '../../config';
+import { generateUsername } from '../../utils/generateUsername';
 
 export const listWLAdmins = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
@@ -28,9 +29,10 @@ export const listWLAdmins = asyncHandler(async (req: Request, res: Response) => 
 export const createWLAdmin = asyncHandler(async (req: Request, res: Response) => {
   const data = (req as any).validated as CreateWLAdminInput;
   const { name, email, mobile, password, tenantId } = data;
+  const subdomain = (req as any).tenant;
 
   const passwordHash = await hashPassword(password);
-  const username = `wladmin_${tenantId}`;
+  const username = generateUsername("WL_ADMIN", subdomain);
 
   const result = await UserService.createUserWithStaticRole({
     tenantId,

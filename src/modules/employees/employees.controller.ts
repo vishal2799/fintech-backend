@@ -6,6 +6,7 @@ import { hashPassword } from '../../utils/hash';
 import { AppError } from '../../utils/AppError';
 import type { CreateEmployeeInput, UpdateEmployeeInput } from './employees.schema';
 import { ERRORS } from '../../constants/errorCodes';
+import { generateUsername } from '../../utils/generateUsername';
 
 /**
  * GET /admin/employees
@@ -25,11 +26,12 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
   const data = (req as any).validated as CreateEmployeeInput;
   const tenantId = req.user?.tenantId;
   const parentId = req.user?.id;
+  const subdomain = (req as any).tenant;
 
   if (!tenantId) throw new AppError(ERRORS.INVALID_TENANT);
 
   const passwordHash = await hashPassword(data.password);
-  const username = `wladmin_${tenantId}`;
+  const username = generateUsername("EMPLOYEE", subdomain);
 
   await UserService.createUserWithRole({
     tenantId,

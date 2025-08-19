@@ -4,6 +4,7 @@ import { Roles } from '../../constants/roles';
 import { successHandler } from '../../utils/responseHandler';
 import { hashPassword } from '../../utils/hash';
 import { asyncHandler } from '../../utils/asyncHandler';
+import { generateUsername } from '../../utils/generateUsername';
 
 export const listSuperDistributors = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
@@ -13,10 +14,12 @@ export const listSuperDistributors = asyncHandler(async (req: Request, res: Resp
 
 export const createSuperDistributor = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
+  const subdomain = (req as any).tenant;
   const { name, email, mobile, password } = req.body;
 
   const passwordHash = await hashPassword(password);
-    const username = `wladmin_${tenantId}`;
+  const username = generateUsername("SUPER_DISTRIBUTOR", subdomain);
+
   const result = await UserService.createUserWithStaticRole({
     tenantId,
     parentId: null,
