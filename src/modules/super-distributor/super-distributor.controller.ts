@@ -16,9 +16,11 @@ export const createSuperDistributor = asyncHandler(async (req: Request, res: Res
   const { name, email, mobile, password } = req.body;
 
   const passwordHash = await hashPassword(password);
+    const username = `wladmin_${tenantId}`;
   const result = await UserService.createUserWithStaticRole({
     tenantId,
     parentId: null,
+    username,
     name,
     email,
     mobile,

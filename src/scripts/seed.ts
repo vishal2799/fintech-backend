@@ -41,6 +41,7 @@ await db.insert(tenants).values({
 
     await db.insert(users).values({
       id: userId,
+      username: 'savmudra',
       name: 'Super Admin',
       email: superAdminEmail,
       mobile: '9999999999',

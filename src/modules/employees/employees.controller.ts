@@ -29,10 +29,12 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
   if (!tenantId) throw new AppError(ERRORS.INVALID_TENANT);
 
   const passwordHash = await hashPassword(data.password);
+  const username = `wladmin_${tenantId}`;
 
   await UserService.createUserWithRole({
     tenantId,
     parentId,
+    username,
     name: data.name,
     email: data.email,
     mobile: data.mobile,

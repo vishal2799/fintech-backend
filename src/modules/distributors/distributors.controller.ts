@@ -17,9 +17,12 @@ export const createDistributor = asyncHandler(async (req: Request, res: Response
   const { name, email, mobile, password, parentId } = req.body;
 
   const passwordHash = await hashPassword(password);
+    const username = `wladmin_${tenantId}`;
+
   const result = await UserService.createUserWithStaticRole({
     tenantId,
     parentId,
+    username,
     name,
     email,
     mobile,
