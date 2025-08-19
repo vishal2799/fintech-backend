@@ -1,27 +1,75 @@
 import { Request, Response, NextFunction } from "express";
 
 const BASE_DOMAIN = process.env.BASE_DOMAIN || "mycompany.com";
+const isSubdomainMode = process.env.SUBDOMAIN_MODE === "true"; // keep in sync with frontend flag
 
-export const extractSubdomain = (req: Request, res: Response, next: NextFunction) => {
-  const host = req.headers.host || '';
-  const hostname = host.split(':')[0]; // strip port
-  const parts = hostname.split('.');
+export const extractTenant = (req: Request, res: Response, next: NextFunction) => {
+  const host = req.headers.host || "";
+  const hostname = host.split(":")[0]; // strip port
+  const parts = hostname.split(".");
 
-  const isLocalhost = hostname.includes('localhost');
-  let subdomain: string | null = null;
+  const isLocalhost = hostname.includes("localhost");
+  let tenant: string | null = null;
 
-  if (isLocalhost && parts.length > 1) {
-    subdomain = parts[0]; // "wl1.localhost"
-  } else if (!isLocalhost && hostname.endsWith(BASE_DOMAIN) && parts.length > 2) {
-    subdomain = parts[0]; // "wl1.mycompany.com"
+  if (isSubdomainMode) {
+    // --- SUBDOMAIN MODE ---
+    if (isLocalhost && parts.length > 1) {
+      // e.g. wl1.localhost
+      tenant = parts[0];
+    } else if (!isLocalhost && hostname.endsWith(BASE_DOMAIN) && parts.length > 2) {
+      // e.g. wl1.mycompany.com
+      tenant = parts[0];
+    }
+  } else {
+    // --- SLUG MODE ---
+    // Expect routes like: /api/:tenant/...
+    const pathParts = req.path.split("/").filter(Boolean);
+    if (pathParts.length > 1) {
+      tenant = pathParts[1]; // after "/api"
+      // remove the tenant from the path so your routers don't get confused
+      req.url = req.url.replace(`/${tenant}`, "");
+    }
   }
 
-  console.log('🔍 Host:', host);
-  console.log('🌐 Subdomain:', subdomain);
+  // Super Admin special case
+  if (tenant === "super-admin") {
+    (req as any).isSuperAdmin = true;
+  }
 
-  (req as any).subdomain = subdomain;
+  (req as any).tenant = tenant;
+
+  console.log("🔍 Host:", host);
+  console.log("🌐 Tenant:", tenant);
+  console.log("👑 SuperAdmin:", (req as any).isSuperAdmin || false);
+
   next();
 };
+
+
+// import { Request, Response, NextFunction } from "express";
+
+// const BASE_DOMAIN = process.env.BASE_DOMAIN || "mycompany.com";
+
+// export const extractSubdomain = (req: Request, res: Response, next: NextFunction) => {
+//   const host = req.headers.host || '';
+//   const hostname = host.split(':')[0]; // strip port
+//   const parts = hostname.split('.');
+
+//   const isLocalhost = hostname.includes('localhost');
+//   let subdomain: string | null = null;
+
+//   if (isLocalhost && parts.length > 1) {
+//     subdomain = parts[0]; // "wl1.localhost"
+//   } else if (!isLocalhost && hostname.endsWith(BASE_DOMAIN) && parts.length > 2) {
+//     subdomain = parts[0]; // "wl1.mycompany.com"
+//   }
+
+//   console.log('🔍 Host:', host);
+//   console.log('🌐 Subdomain:', subdomain);
+
+//   (req as any).subdomain = subdomain;
+//   next();
+// };
 
 
 // import { Request, Response, NextFunction } from "express";
