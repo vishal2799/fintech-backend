@@ -22,3 +22,4 @@ export * from './documents';
 export * from './companyBankAccounts'
 export * from './preWarmLogs'
 export * from './serviceRuleTypes';
+export * from './serviceOperators';

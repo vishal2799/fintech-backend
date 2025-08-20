@@ -15,6 +15,7 @@ import stRoutes from '../modules/support-ticket/supportTicket.routes';
 import walletRoutes from '../modules/wallet/wallet.routes';
 import wladminRoutes from '../modules/wl-admin/wlAdmin.routes';
 import logRoutes from '../modules/audit-logs/auditLogs.routes';
+import soRoutes from '../modules/service-operators/serviceOperator.routes';
 import bankRoutes from '../modules/companyBankAccounts/companyBankAccounts.routes';
 import { withAuditContext } from '../middlewares/auditContext';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -25,6 +26,7 @@ import { eq } from 'drizzle-orm';
 const router = Router()
 
 router.use('/auth', authRoutes)
+router.use('/service-operators', soRoutes)
 router.use('/service-rule-types', srtRoutes)
 router.use('/permissions', permissionRoutes)
 router.use('/roles', rolesRoutes)

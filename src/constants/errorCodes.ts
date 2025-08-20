@@ -199,6 +199,16 @@ message: 'Permission already exists',
     code: 'SERVICE_RULE_ALREADY_EXISTS',
     status: 404,
   },
+  SERVICE_OPERATOR_ALREADY_EXISTS: {
+    message: 'Service operator already exists for this service',
+    code: 'SERVICE_OPERATOR_ALREADY_EXISTS',
+    status: 404,
+  },
+  OPERATOR_NOT_FOUND: {
+    message: 'Operator not found',
+    code: 'OPERATOR_NOT_FOUND',
+    status: 404,
+  },
 };
 
 export type AppErrorCode = keyof typeof ERRORS;
