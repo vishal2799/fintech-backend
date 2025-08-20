@@ -9,6 +9,7 @@ import wlServicesRoutes from '../modules/services/wlService.routes';
 import tenantRoutes from '../modules/tenant/tenant.routes';
 import sdRoutes from '../modules/super-distributor/super-distributor.routes';
 import dRoutes from '../modules/distributors/distributors.routes';
+import srtRoutes from '../modules/service-rule-types/service-rule-types.routes';
 import rRoutes from '../modules/retailers/retailers.routes';
 import stRoutes from '../modules/support-ticket/supportTicket.routes';
 import walletRoutes from '../modules/wallet/wallet.routes';
@@ -24,6 +25,7 @@ import { eq } from 'drizzle-orm';
 const router = Router()
 
 router.use('/auth', authRoutes)
+router.use('/service-rule-types', srtRoutes)
 router.use('/permissions', permissionRoutes)
 router.use('/roles', rolesRoutes)
 router.use('/banks', bankRoutes)

@@ -184,6 +184,21 @@ message: 'Permission already exists',
     code: 'TOKEN_INVALID',
     status: 401,
   },
+  PARENT_SERVICE_NOT_FOUND: {
+    message: 'Parent service not found',
+    code: 'PARENT_SERVICE_NOT_FOUND',
+    status: 404,
+  },
+  SERVICE_RULE_NOT_FOUND: {
+    message: 'Service rule not found',
+    code: 'SERVICE_RULE_NOT_FOUND',
+    status: 404,
+  },
+  SERVICE_RULE_ALREADY_EXISTS: {
+    message: 'Service rule type already exists for this service',
+    code: 'SERVICE_RULE_ALREADY_EXISTS',
+    status: 404,
+  },
 };
 
 export type AppErrorCode = keyof typeof ERRORS;
