@@ -57,7 +57,8 @@ export const ServiceRuleTypeService = {
         code: serviceRuleTypes.code,
         description: serviceRuleTypes.description,
         serviceId: serviceRuleTypes.serviceId,
-        serviceName: services.name, // ✅ join services.name
+        serviceName: services.name,
+        isActive: serviceRuleTypes.isActive
       })
       .from(serviceRuleTypes)
       .leftJoin(services, eq(serviceRuleTypes.serviceId, services.id));

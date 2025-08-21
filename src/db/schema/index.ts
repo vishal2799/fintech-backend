@@ -23,3 +23,5 @@ export * from './companyBankAccounts'
 export * from './preWarmLogs'
 export * from './serviceRuleTypes';
 export * from './serviceOperators';
+export * from './serviceCommissions';
+export * from './serviceCharges';

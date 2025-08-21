@@ -17,6 +17,7 @@ import wladminRoutes from '../modules/wl-admin/wlAdmin.routes';
 import logRoutes from '../modules/audit-logs/auditLogs.routes';
 import soRoutes from '../modules/service-operators/serviceOperator.routes';
 import bankRoutes from '../modules/companyBankAccounts/companyBankAccounts.routes';
+import commissionRoutes from '../modules/commission/commission.routes';
 import { withAuditContext } from '../middlewares/auditContext';
 import { asyncHandler } from '../utils/asyncHandler';
 import { db } from '../db';
@@ -26,6 +27,7 @@ import { eq } from 'drizzle-orm';
 const router = Router()
 
 router.use('/auth', authRoutes)
+router.use('/commissions', commissionRoutes)
 router.use('/service-operators', soRoutes)
 router.use('/service-rule-types', srtRoutes)
 router.use('/permissions', permissionRoutes)
