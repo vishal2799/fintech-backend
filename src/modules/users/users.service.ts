@@ -10,46 +10,92 @@ type Status = 'ACTIVE' | 'LOCKED' | 'BLOCKED';
 type StaticRole = 'SUPER_ADMIN' | 'WL_ADMIN' | 'SD' | 'D' | 'R' | 'EMPLOYEE';
 
 /* -------------------------------- Get users by role ------------------------------- */
+// export const getUsersByStaticRole = async (
+//   tenantId: string,
+//   staticRole: StaticRole,
+//   isSuperAdmin = false
+// ) => {
+//   if (staticRole === Roles.EMPLOYEE) {
+//     const rows = await db
+//       .select({
+//         id: users.id,
+//         name: users.name,
+//         email: users.email,
+//         mobile: users.mobile,
+//         staticRole: users.staticRole,
+//         tenantId: users.tenantId,
+//         isEmployee: users.isEmployee,
+//         roleId: roles.id,
+//         roleName: roles.name,
+//       })
+//       .from(users)
+//       .leftJoin(userRoles, eq(userRoles.userId, users.id))
+//       .leftJoin(roles, eq(roles.id, userRoles.roleId))
+//       .where(
+//         isSuperAdmin ? eq(users.staticRole, Roles.EMPLOYEE) : and(eq(users.tenantId, tenantId), eq(users.staticRole, Roles.EMPLOYEE))
+//       );
+
+//     return rows.map((u) => ({
+//       ...u,
+//       role: u.roleId ? { id: u.roleId, name: u.roleName } : undefined,
+//     }));
+//   }
+
+//   // Non-employee roles (WL_ADMIN, SD, D, etc.)
+//   return db
+//     .select()
+//     .from(users)
+//     .where(
+//       isSuperAdmin ? eq(users.staticRole, staticRole) : and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole))
+//     )
+//     // .where(and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole)));
+// };
+
 export const getUsersByStaticRole = async (
   tenantId: string,
   staticRole: StaticRole,
-  isSuperAdmin = false
+  isSuperAdmin = false,
+  parentId?: string // 👈 add this
 ) => {
-  if (staticRole === Roles.EMPLOYEE) {
-    const rows = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        mobile: users.mobile,
-        staticRole: users.staticRole,
-        tenantId: users.tenantId,
-        isEmployee: users.isEmployee,
-        roleId: roles.id,
-        roleName: roles.name,
-      })
-      .from(users)
-      .leftJoin(userRoles, eq(userRoles.userId, users.id))
-      .leftJoin(roles, eq(roles.id, userRoles.roleId))
-      .where(
-        isSuperAdmin ? eq(users.staticRole, Roles.EMPLOYEE) : and(eq(users.tenantId, tenantId), eq(users.staticRole, Roles.EMPLOYEE))
-      );
+  // EMPLOYEE part stays same...
 
-    return rows.map((u) => ({
-      ...u,
-      role: u.roleId ? { id: u.roleId, name: u.roleName } : undefined,
-    }));
+  // For NON-EMPLOYEES (WL_ADMIN, SD, D, etc.)
+  const whereClause = [];
+
+  if (!isSuperAdmin) {
+    whereClause.push(eq(users.tenantId, tenantId));
   }
 
-  // Non-employee roles (WL_ADMIN, SD, D, etc.)
-  return db
-    .select()
+  whereClause.push(eq(users.staticRole, staticRole));
+
+  if (parentId) {
+    whereClause.push(eq(users.parentId, parentId)); // 👈 filter by parentId
+  }
+
+  const rows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      mobile: users.mobile,
+      staticRole: users.staticRole,
+      tenantId: users.tenantId,
+      parentId: users.parentId,
+    })
     .from(users)
-    .where(
-      isSuperAdmin ? eq(users.staticRole, staticRole) : and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole))
-    )
-    // .where(and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole)));
+    .where(and(...whereClause));
+
+  return rows.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    mobile: u.mobile,
+    staticRole: u.staticRole,
+    tenantId: u.tenantId,
+    parentId: u.parentId,
+  }));
 };
+
 
 /* -------------------------- Create user with static role -------------------------- */
 export const createUserWithStaticRole = async ({

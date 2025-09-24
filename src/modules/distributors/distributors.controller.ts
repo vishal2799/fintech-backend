@@ -13,6 +13,21 @@ export const listDistributors = asyncHandler(async (req: Request, res: Response)
   return successHandler(res, {data: users, message: 'Distributor Fetched successfully', status: 200});
 });
 
+export const listDistributors2 = asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = req.user?.tenantId!;
+  const superDistributorId = req.user?.id as string | undefined;
+
+    const users = await UserService.getUsersByStaticRole(
+    tenantId,
+    Roles.D,
+    false,
+    superDistributorId
+  );
+
+  // const users = await UserService.getUsersByStaticRole(tenantId, Roles.D);
+  return successHandler(res, {data: users, message: 'Distributor 2 Fetched successfully', status: 200});
+});
+
 export const createDistributor = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
     const subdomain = (req as any).tenant;

@@ -9,7 +9,7 @@ const router = Router();
 
 // Require WL Admin
 router.use(requireAuth);
-router.use(roleCheck([Roles.WL_ADMIN]));
+router.use(roleCheck([Roles.WL_ADMIN, Roles.SD]));
 
 router.get('/', Controller.listSuperDistributors);
 router.post('/', Controller.createSuperDistributor);

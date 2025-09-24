@@ -217,6 +217,7 @@ export const verifyOtpLogin = async ({
   );
 
   const payload = {
+    id: user.id,
     name: user.name,
     email: user.email,
     userId: user.id,
@@ -312,6 +313,7 @@ export const refreshTokens = async ({ token }: RefreshInput) => {
   const { roleNames, permissionNames, scope } = await getUserRolesAndPermissions(user.id, !!user.isEmployee, user.staticRole);
 
   const newPayload = {
+    id: user.id,
     name: user.name,
     email: user.email,
     userId: user.id,
