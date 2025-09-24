@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../../db';
 import { users, roles, userRoles } from '../../db/schema';
@@ -50,6 +50,59 @@ type StaticRole = 'SUPER_ADMIN' | 'WL_ADMIN' | 'SD' | 'D' | 'R' | 'EMPLOYEE';
 //     )
 //     // .where(and(eq(users.tenantId, tenantId), eq(users.staticRole, staticRole)));
 // };
+
+
+export const getAllRetailersUnderSD = async (
+  tenantId: string,
+  superDistributorId: string
+) => {
+  // 1️⃣ Get all distributors under this SD
+  const distributorRows = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(
+      and(
+        eq(users.tenantId, tenantId),
+        eq(users.staticRole, Roles.D),
+        eq(users.parentId, superDistributorId) // SD → D
+      )
+    );
+
+  const distributorIds = distributorRows.map((d) => d.id);
+
+  if (distributorIds.length === 0) return []; // no distributors → no retailers
+
+  // 2️⃣ Get all retailers whose parentId is in these distributorIds
+  const retailerRows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      mobile: users.mobile,
+      parentId: users.parentId,
+      staticRole: users.staticRole,
+      tenantId: users.tenantId,
+    })
+    .from(users)
+    .where(
+      and(
+        eq(users.tenantId, tenantId),
+        eq(users.staticRole, Roles.R), // only Retailers
+        inArray(users.parentId, distributorIds) // D → R
+      )
+    );
+
+  return retailerRows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    email: r.email,
+    mobile: r.mobile,
+    parentId: r.parentId,
+    staticRole: r.staticRole,
+    tenantId: r.tenantId,
+  }));
+};
+
 
 export const getUsersByStaticRole = async (
   tenantId: string,

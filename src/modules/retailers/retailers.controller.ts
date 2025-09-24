@@ -6,6 +6,19 @@ import { Roles } from '../../constants/roles';
 import { hashPassword } from '../../utils/hash';
 import { generateUsername } from '../../utils/generateUsername';
 
+export const listRetailersUnderSD = asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = req.user?.tenantId!;
+  const sdId = req.user?.id!; // assuming logged-in SD
+
+  const retailers = await UserService.getAllRetailersUnderSD(tenantId, sdId);
+
+  return successHandler(res, {
+    data: retailers,
+    message: 'Retailers SD fetched successfully',
+    status: 200,
+  });
+});
+
 
 export const listRetailers = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;

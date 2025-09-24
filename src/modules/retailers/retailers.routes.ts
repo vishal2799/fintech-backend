@@ -8,7 +8,9 @@ import { requireAuth } from '../../middlewares/requireAuth';
 const router = Router();
 
 router.use(requireAuth);
-router.use(roleCheck([Roles.WL_ADMIN, Roles.D]));
+router.use(roleCheck([Roles.WL_ADMIN, Roles.SD, Roles.D]));
+
+router.get('/sd', Controller.listRetailersUnderSD);
 
 router.get('/d', Controller.listRetailers2);
 router.get('/', Controller.listRetailers);
