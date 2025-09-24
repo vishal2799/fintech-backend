@@ -16,11 +16,11 @@ import { withAuditContext } from '../../middlewares/auditContext';
 const router = Router();
 
 // Require SUPER_ADMIN to access permissions module
-router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]));
+router.use(requireAuth, roleCheck([Roles.SUPER_ADMIN, Roles.WL_ADMIN, Roles.EMPLOYEE]));
 
 // GET /permissions
 router.get('/', 
-  checkPermission(PERMISSIONS.PERMISSIONS_READ, [Roles.SUPER_ADMIN]), 
+  checkPermission(PERMISSIONS.PERMISSIONS_READ, [Roles.SUPER_ADMIN, Roles.WL_ADMIN]), 
   withAuditContext(AUDIT_MODULES.PERMISSION, AUDIT_ACTIONS.VIEW_PERMISSION),
   PermissionController.getAllPermissions);
 
