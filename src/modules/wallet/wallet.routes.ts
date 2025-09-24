@@ -48,8 +48,8 @@ router.get(
 
 router.get(
   '/admin/credit-requests',
-  roleCheck([Roles.WL_ADMIN, Roles.EMPLOYEE]),
-  checkPermission(PERMISSIONS.WALLET_REQUEST_CREDIT, [Roles.WL_ADMIN]),
+  roleCheck([Roles.WL_ADMIN, Roles.EMPLOYEE, Roles.SUPER_ADMIN]),
+  checkPermission(PERMISSIONS.WALLET_REQUEST_CREDIT, [Roles.WL_ADMIN, Roles.SUPER_ADMIN]),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_CREDIT_REQUEST),
   Controller.getMyCreditRequests
 );
@@ -65,7 +65,7 @@ router.post(
 
 // ------------------- Super Admin Routes -------------------
 
-router.use(roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]));
+// router.use(roleCheck([Roles.SUPER_ADMIN, Roles.EMPLOYEE]));
 
 // Create wallet manually
 router.post(
