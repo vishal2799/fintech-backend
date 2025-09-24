@@ -13,6 +13,20 @@ export const listRetailers = asyncHandler(async (req: Request, res: Response) =>
   return successHandler(res, {data: users, message: 'Retailers Fetched successfully', status: 200});
 });
 
+export const listRetailers2 = asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = req.user?.tenantId!;
+    const distributorId = req.user?.id as string | undefined;
+  
+      const users = await UserService.getUsersByStaticRole(
+      tenantId,
+      Roles.R,
+      false,
+      distributorId
+    );
+  // const users = await UserService.getUsersByStaticRole(tenantId, Roles.R);
+  return successHandler(res, {data: users, message: 'Retailers 2 Fetched successfully', status: 200});
+});
+
 export const createRetailer = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId!;
     const subdomain = (req as any).tenant;
