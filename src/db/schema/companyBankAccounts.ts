@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const companyBankAccounts = pgTable('company_bank_accounts', {
@@ -9,6 +9,7 @@ export const companyBankAccounts = pgTable('company_bank_accounts', {
   ifscCode: varchar('ifsc_code', { length: 20 }).notNull(),
   branchName: varchar('branch_name', { length: 255 }),
   tenantId: uuid('tenant_id').notNull().references(() => tenants.id),
+  isGlobal: boolean('is_global').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });

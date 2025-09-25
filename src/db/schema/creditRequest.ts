@@ -39,18 +39,18 @@ export const creditRequest = pgTable('credit_request', {
 //   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 // });
 
-export const manualCreditRequest = pgTable('manual_credit_request', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  creditRequestId: uuid('credit_request_id')
-    .notNull()
-    .references(() => creditRequest.id),
-  bankAccountId: uuid('bank_account_id')
-    .notNull()
-    .references(() => companyBankAccounts.id),
-  utrNumber: text('utr_number').notNull(),
-  paymentDate: timestamp('payment_date', { withTimezone: true }).notNull(),
-  proofUrl: text('proof_url').notNull(),
-  remarks: text('remarks'),
-   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-});
+// export const manualCreditRequest = pgTable('manual_credit_request', {
+//   id: uuid('id').defaultRandom().primaryKey(),
+//   creditRequestId: uuid('credit_request_id')
+//     .notNull()
+//     .references(() => creditRequest.id),
+//   bankAccountId: uuid('bank_account_id')
+//     .notNull()
+//     .references(() => companyBankAccounts.id),
+//   utrNumber: text('utr_number').notNull(),
+//   paymentDate: timestamp('payment_date', { withTimezone: true }).notNull(),
+//   proofUrl: text('proof_url').notNull(),
+//   remarks: text('remarks'),
+//    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+//   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+// });
