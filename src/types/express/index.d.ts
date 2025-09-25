@@ -4,6 +4,7 @@ import 'express';
 
 declare module 'express' {
   interface Request {
+    validated?: any; // or be specific: validated: CreateBankAccountDto;
     user?: {
       id: string;
       tenantId: string;
