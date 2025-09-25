@@ -3,7 +3,7 @@ import * as AuditController from './auditLogs.controller';
 import { requireAuth } from '../../middlewares/requireAuth';
 import { validate } from '../../middlewares/validate';
 import { getAuditLogsSchema } from './auditLog.schema';
-import { getAllAuditLogs } from './clientAuditLogs.controller';
+import { getAllAuditLogs, getTenantAuditLogs } from './clientAuditLogs.controller';
 
 const router = express.Router();
 
@@ -12,5 +12,6 @@ const router = express.Router();
 router.get('/', requireAuth, AuditController.getAuditLogs)
 router.get('/export', AuditController.exportAuditLogs);
 router.get("/client", requireAuth, getAllAuditLogs);
+router.get("/tenant", requireAuth, getTenantAuditLogs);
 
 export default router;

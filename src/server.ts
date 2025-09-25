@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import routes from './routes'
 import globalErrorHandler from './middlewares/errorHandler'
 import { extractTenant } from './middlewares/extractSubdomain'
+import { auditLogger } from './middlewares/auditLogger'
 
 dotenv.config()
 
