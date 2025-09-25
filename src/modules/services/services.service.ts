@@ -1,9 +1,9 @@
 // src/modules/services/services.service.ts
 import { db } from '../../db'
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { services } from '../../db/schema'
-import { tenantServiceConfig } from '../../db/schema/tenantServiceConfig'
-import { userServiceConfig } from '../../db/schema/userServiceConfig'
+// import { tenantServiceConfig } from '../../db/schema/tenantServiceConfig'
+// import { userServiceConfig } from '../../db/schema/userServiceConfig'
 
 export const getAllServices = async () => {
   return await db.select().from(services)
