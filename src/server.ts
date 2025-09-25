@@ -3,11 +3,6 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import routes from './routes'
 import globalErrorHandler from './middlewares/errorHandler'
-import { auditLogger } from './middlewares/auditLogger'
-import { asyncHandler } from './utils/asyncHandler'
-import { db } from './db'
-import { prewarmLogs } from './db/schema'
-import { eq } from 'drizzle-orm'
 import { extractTenant } from './middlewares/extractSubdomain'
 
 dotenv.config()
