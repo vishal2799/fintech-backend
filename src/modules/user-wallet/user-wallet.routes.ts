@@ -53,4 +53,56 @@ router.post(
   Controller.requestCredit
 );
 
+// -------- Admin APIS ------------
+
+// Create wallet manually
+router.post(
+  '/super-admin/create',
+  // checkPermission(PERMISSIONS.WALLET_CREATE, [Roles.SUPER_ADMIN]),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_CREATE),
+  Controller.createUserWallet
+);
+
+router.get(
+  '/super-admin/tenant-wallets',
+  // checkPermission(PERMISSIONS.WALLET_VIEW, [Roles.SUPER_ADMIN]),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_VIEW),
+  Controller.listUserWallets
+);
+
+// View credit requests
+router.get(
+  '/super-admin/credit-requests',
+  // checkPermission(PERMISSIONS.WALLET_VIEW, [Roles.SUPER_ADMIN]),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_VIEW_REQUESTS),
+  Controller.getAllCreditRequests
+);
+
+// View Pending Credit Requests
+router.get(
+  '/super-admin/pending-credit-requests',
+  // checkPermission(PERMISSIONS.WALLET_VIEW, [Roles.SUPER_ADMIN]),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_VIEW_REQUESTS),
+  Controller.getPendingCreditRequests
+);
+
+// Approve credit
+router.post(
+  '/super-admin/approve/:id',
+  // checkPermission(PERMISSIONS.WALLET_APPROVE_CREDIT, [Roles.SUPER_ADMIN]),
+  // validate(approveRejectSchema),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_CREDIT_APPROVE),
+  Controller.approveCreditRequest
+);
+
+// Reject credit
+router.post(
+  '/super-admin/reject/:id',
+  // checkPermission(PERMISSIONS.WALLET_APPROVE_CREDIT, [Roles.SUPER_ADMIN]),
+  // validate(approveRejectSchema),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_CREDIT_REJECT),
+  Controller.rejectCreditRequest
+);
+
+
 export default router;

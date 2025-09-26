@@ -72,7 +72,6 @@ export const getProofUploadUrl = asyncHandler(async (req, res) => {
   return successHandler(res, { data: { uploadUrl, fileKey } });
 });
 
-
 export const updateProofKey = asyncHandler(async (req, res) => {
   const { creditRequestId, fileKey } = (req as any).validated;
 
@@ -95,4 +94,59 @@ export const getProofUrl = asyncHandler(async (req, res) => {
 
   const downloadUrl = await storageService.generateDownloadUrl(creditRequestt.proofUrl);
   return successHandler(res, { data: {downloadUrl, fileKey: creditRequestt.proofUrl} });
+});
+
+// ✅ WL Admin APIs
+
+export const createUserWallet = asyncHandler(async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  if (!userId) throw new AppError(ERRORS.USER_NOT_FOUND);
+
+  await WalletService.ensureUserWalletExists(userId);
+  return successHandler(res, {data: null, message: 'Wallet ensured' });
+});
+
+export const listUserWallets = asyncHandler(async (_req, res) => {
+  const data = await WalletService.getAllUserWallets();
+  return successHandler(res, {
+    data,
+    message: 'User wallet list fetched successfully',
+    status: 200,
+  });
+});
+
+export const getAllCreditRequests = asyncHandler(async (_req: Request, res: Response) => {
+  const data = await WalletService.getAllCreditRequests();
+  return successHandler(res, { data, message: 'Fetched All WL Credit Requests Successfully' });
+});
+
+export const getPendingCreditRequests = asyncHandler(async (_req: Request, res: Response) => {
+  const data = await WalletService.getPendingCreditRequests();
+  return successHandler(res, { data, message: 'Fetched Pending Credit Requests Successfully' });
+});
+
+export const approveCreditRequest = asyncHandler(async (req: Request, res: Response) => {
+
+  const userId = req.user?.id;
+  const requestId =  req.params.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+  }
+
+  const result = await WalletService.approveCreditRequest({approvedByUserId: userId, requestId: requestId});
+  return successHandler(res, { data: result, message: 'Request approved' });
+});
+
+export const rejectCreditRequest = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const requestId =  req.params.id;
+  const remarks = req.body.remarks;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+  }
+
+  const result = await WalletService.rejectCreditRequest({requestId: requestId, remarks: remarks, approvedByUserId: userId});
+  return successHandler(res, { data: result, message: 'Request rejected' });
 });
