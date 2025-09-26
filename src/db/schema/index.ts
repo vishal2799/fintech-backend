@@ -15,3 +15,6 @@ export * from './authLogins';
 export * from './resetTokens';
 export * from './companyBankAccounts'
 export * from './serviceOperators';
+export * from './userWallet';
+export * from './userWalletTransaction';
+export * from './fundRequest';
