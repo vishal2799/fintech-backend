@@ -9,7 +9,6 @@ export const fundRequestStatus = pgEnum('fund_request_status', [
 
 export const fundRequest = pgTable('fund_request', {
   id: uuid('id').defaultRandom().primaryKey(),
-  fromUserId: uuid('from_user_id').notNull().references(() => users.id), // SD/D/R
   tenantId: uuid('tenant_id').notNull().references(() => tenants.id), // WL Admin tenant
   bankId: uuid('bank_id').notNull().references(() => companyBankAccounts.id),
   amount: numeric('amount', { precision: 18, scale: 2 }).notNull(),
