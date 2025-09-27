@@ -104,5 +104,40 @@ router.post(
   Controller.rejectCreditRequest
 );
 
+// Manual top-up
+router.post(
+  '/super-admin/credit',
+  // checkPermission(PERMISSIONS.WALLET_MANUAL_TOPUP, [Roles.SUPER_ADMIN]),
+  // validate(manualTopupSchema),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_TOPUP),
+  Controller.manualTopupUserWallet
+);
+
+// Debit
+router.post(
+  '/super-admin/debit',
+  // checkPermission(PERMISSIONS.WALLET_DEBIT, [Roles.SUPER_ADMIN]),
+  // validate(debitWalletSchema),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_DEBIT),
+  Controller.debitUserWallet
+);
+
+// Hold
+router.post(
+  '/super-admin/hold',
+  // checkPermission(PERMISSIONS.WALLET_HOLD, [Roles.SUPER_ADMIN]),
+  // validate(holdWalletSchema),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_HOLD),
+  Controller.holdUserWalletAmount
+);
+
+// Release
+router.post(
+  '/super-admin/release',
+  // checkPermission(PERMISSIONS.WALLET_RELEASE, [Roles.SUPER_ADMIN]),
+  // validate(releaseWalletSchema),
+  withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_RELEASE),
+  Controller.releaseUserWalletHold
+);
 
 export default router;

@@ -14,6 +14,7 @@ export const userTransactionMetaType = pgEnum('user_transaction_meta_type', [
   'KYC_FEE',
   'REVERSAL',
   'MANUAL_ADJUSTMENT',
+  'MANUAL_CREDIT',
   'MANUAL_DEBIT',
   'HOLD_FUNDS',
   'RELEASE_FUNDS'

@@ -4,7 +4,7 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { ERRORS } from "../../constants/errorCodes";
 import { successHandler } from "../../utils/responseHandler";
 import * as WalletService from './user-wallet.service';
-import { RequestCreditInput } from "./user-wallet.schema";
+import { DebitWalletInput, HoldWalletInput, ManualTopupInput, ReleaseWalletInput, RequestCreditInput } from "./user-wallet.schema";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
 import { fundRequest, tenants } from "../../db/schema";
@@ -106,8 +106,13 @@ export const createUserWallet = asyncHandler(async (req: Request, res: Response)
   return successHandler(res, {data: null, message: 'Wallet ensured' });
 });
 
-export const listUserWallets = asyncHandler(async (_req, res) => {
-  const data = await WalletService.getAllUserWallets();
+export const listUserWallets = asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = req.user?.tenantId;
+  if (!tenantId) {
+  throw new AppError(ERRORS.INVALID_TENANT);
+}
+
+  const data = await WalletService.getAllUserWallets(tenantId);
   return successHandler(res, {
     data,
     message: 'User wallet list fetched successfully',
@@ -149,4 +154,76 @@ export const rejectCreditRequest = asyncHandler(async (req: Request, res: Respon
 
   const result = await WalletService.rejectCreditRequest({requestId: requestId, remarks: remarks, approvedByUserId: userId});
   return successHandler(res, { data: result, message: 'Request rejected' });
+});
+
+export const manualTopupUserWallet = asyncHandler(async (req: Request, res: Response) => {
+  const input = (req as any).validated as ManualTopupInput;
+
+  const userId = req.user?.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.manualTopupUserWallet(fullInput);
+  return successHandler(res, { data: result, message: 'Wallet credited' });
+});
+
+export const debitUserWallet = asyncHandler(async (req: Request, res: Response) => {
+  const input = (req as any).validated as DebitWalletInput;
+
+  const userId = req.user?.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.debitUserWallet(fullInput);
+  return successHandler(res, { data: result, message: 'Wallet debited' });
+});
+
+export const holdUserWalletAmount = asyncHandler(async (req: Request, res: Response) => {
+  const input = (req as any).validated as HoldWalletInput;
+
+  const userId = req.user?.id;
+
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.holdUserFunds(fullInput);
+  return successHandler(res, { data: result, message: 'Amount held' });
+});
+
+export const releaseUserWalletHold = asyncHandler(async (req: Request, res: Response) => {
+  const input = (req as any).validated as ReleaseWalletInput;
+
+const userId = req.user?.id;
+
+if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
+
+const fullInput = {
+  ...input,
+  userId
+};
+
+  const result = await WalletService.releaseHeldFunds(fullInput);
+  return successHandler(res, { data: result, message: 'Hold released' });
 });
