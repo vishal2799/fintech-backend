@@ -1,4 +1,4 @@
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, or } from "drizzle-orm";
 import { db } from "../../db";
 import { companyBankAccounts, fundRequest, tenants, users, userWallet, userWalletTransaction } from "../../db/schema";
 import { AppError } from "../../utils/AppError";
@@ -91,13 +91,6 @@ export const getAllUserWallets = async (tenantId: string) => {
     heldAmount: r.heldAmount ? Number(r.heldAmount) : 0,
   }));
 
-  // return rows.map((row) => ({
-  //   tenantId: row.tenantId,
-  //   tenantName: row.tenantName,
-  //   balance: row.balance ?? '0',
-  //   heldAmount: row.heldAmount ?? '0',
-  // }));
-  return rows
 };
 
 export const getAllCreditRequests = async () => {
@@ -416,4 +409,84 @@ export const releaseHeldFunds = async ({
   });
 
   return { success: true, message: 'Held funds released and logged.' };
+};
+
+/**
+ * Get child users with wallet data depending on caller's role.
+ * @param tenantId Tenant ID
+ * @param userId   Logged in user ID (SD/D etc)
+ */
+export const getTenantUsersWithWallets = async (tenantId: string, userId: string) => {
+  // 1️⃣ Find the calling user to get their role + ID
+  const [currentUser] = await db
+    .select({
+      id: users.id,
+      role: users.staticRole,
+    })
+    .from(users)
+    .where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+
+  if (!currentUser) throw new Error('User not found or not in tenant');
+
+  let whereClause;
+
+  // 2️⃣ Build whereClause based on role
+  switch (currentUser.role) {
+    case 'WL_ADMIN':
+      // WL Admin: all SD, D, R in tenant
+      whereClause = and(eq(users.tenantId, tenantId),
+        inArray(users.staticRole, ['SD', 'D', 'R']));
+      break;
+
+    case 'SD':
+      // SD: get their D + R
+      // Step 1: get D’s under this SD
+      const dRows = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.parentId, currentUser.id), eq(users.staticRole, 'D')));
+      const dIds = dRows.map(r => r.id);
+
+      // We want both D and R under them
+      whereClause = and(
+        eq(users.tenantId, tenantId),
+        or(
+          eq(users.parentId, currentUser.id), // all D under SD
+          inArray(users.parentId, dIds) // all R under those D
+        )
+      );
+      break;
+
+    case 'D':
+      // D: only R under them
+      whereClause = and(eq(users.tenantId, tenantId), eq(users.parentId, currentUser.id), eq(users.staticRole, 'R'));
+      break;
+
+    default:
+      // Retailer or unknown: probably empty
+      whereClause = and(eq(users.tenantId, tenantId), eq(users.id, currentUser.id));
+      break;
+  }
+
+  // 3️⃣ Fetch with wallet join
+  const rows = await db
+    .select({
+      userId: users.id,
+      userName: users.name,
+      staticRole: users.staticRole,
+      balance: userWallet.balance,
+      heldAmount: userWallet.heldAmount,
+    })
+    .from(users)
+    .leftJoin(userWallet, eq(userWallet.userId, users.id))
+    .where(whereClause);
+
+  // 4️⃣ Map & cast numeric
+  return rows.map(r => ({
+    userId: r.userId,
+    userName: r.userName ?? '',
+    staticRole: r.staticRole,
+    balance: r.balance ? Number(r.balance) : 0,
+    heldAmount: r.heldAmount ? Number(r.heldAmount) : 0,
+  }));
 };

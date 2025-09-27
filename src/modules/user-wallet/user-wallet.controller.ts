@@ -108,11 +108,18 @@ export const createUserWallet = asyncHandler(async (req: Request, res: Response)
 
 export const listUserWallets = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = req.user?.tenantId;
+  const userId = req.user?.id;
+
   if (!tenantId) {
   throw new AppError(ERRORS.INVALID_TENANT);
 }
+  if (!userId) {
+  throw new AppError(ERRORS.USER_NOT_FOUND);
+}
 
-  const data = await WalletService.getAllUserWallets(tenantId);
+  // const data = await WalletService.getAllUserWallets(tenantId);
+    const data = await WalletService.getTenantUsersWithWallets(tenantId, userId);
+
   return successHandler(res, {
     data,
     message: 'User wallet list fetched successfully',
