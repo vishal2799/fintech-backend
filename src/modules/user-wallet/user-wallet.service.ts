@@ -342,10 +342,12 @@ export const holdUserFunds = async ({
   userId: string;
   description?: string;
 }) => {
+  await ensureUserWalletExists(memberId);
+
   const [wallet] = await db
     .select()
     .from(userWallet)
-    .where(eq(userWallet, memberId));
+    .where(eq(userWallet.userId, memberId));
 
   if (!wallet || Number(wallet.balance) < amount) {
     throw new AppError(ERRORS.INSUFFICIENT_BALANCE_HOLD);

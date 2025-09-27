@@ -197,6 +197,8 @@ export const holdUserWalletAmount = asyncHandler(async (req: Request, res: Respo
 
   const userId = req.user?.id;
 
+  console.log(input,userId, 'dhfjl')
+
   if (!userId) {
   throw new AppError(ERRORS.USER_NOT_FOUND);
 }

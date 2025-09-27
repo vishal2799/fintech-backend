@@ -8,7 +8,7 @@ import { roleCheck } from '../../middlewares/roleCheck';
 import { checkPermission } from '../../middlewares/permissions';
 import { validate } from '../../middlewares/validate';
 import { withAuditContext } from '../../middlewares/auditContext';
-import { requestCreditSchema, updateProofSchema, uploadProofSchema } from './user-wallet.schema';
+import { debitWalletSchema, holdWalletSchema, manualTopupSchema, releaseWalletSchema, requestCreditSchema, updateProofSchema, uploadProofSchema } from './user-wallet.schema';
 
 const router = Router();
 
@@ -108,7 +108,7 @@ router.post(
 router.post(
   '/super-admin/credit',
   // checkPermission(PERMISSIONS.WALLET_MANUAL_TOPUP, [Roles.SUPER_ADMIN]),
-  // validate(manualTopupSchema),
+  validate(manualTopupSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_TOPUP),
   Controller.manualTopupUserWallet
 );
@@ -117,7 +117,7 @@ router.post(
 router.post(
   '/super-admin/debit',
   // checkPermission(PERMISSIONS.WALLET_DEBIT, [Roles.SUPER_ADMIN]),
-  // validate(debitWalletSchema),
+  validate(debitWalletSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_DEBIT),
   Controller.debitUserWallet
 );
@@ -126,7 +126,7 @@ router.post(
 router.post(
   '/super-admin/hold',
   // checkPermission(PERMISSIONS.WALLET_HOLD, [Roles.SUPER_ADMIN]),
-  // validate(holdWalletSchema),
+  validate(holdWalletSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_HOLD),
   Controller.holdUserWalletAmount
 );
@@ -135,7 +135,7 @@ router.post(
 router.post(
   '/super-admin/release',
   // checkPermission(PERMISSIONS.WALLET_RELEASE, [Roles.SUPER_ADMIN]),
-  // validate(releaseWalletSchema),
+  validate(releaseWalletSchema),
   withAuditContext(AUDIT_MODULES.WALLET, AUDIT_ACTIONS.WALLET_RELEASE),
   Controller.releaseUserWalletHold
 );
