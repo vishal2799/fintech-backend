@@ -166,6 +166,25 @@ export const RESPONSE = {
   },
 },
 
+SERVICE_ACTION: {
+    CREATED: {
+      statusCode: 201,
+      message: 'Service action created successfully',
+    },
+    FETCHED: {
+      statusCode: 200,
+      message: 'Service action(s) fetched successfully',
+    },
+    UPDATED: {
+      statusCode: 200,
+      message: 'Service action updated successfully',
+    },
+    DELETED: {
+      statusCode: 200,
+      message: 'Service action deleted successfully',
+    },
+  },
+
 };
 
 export type ResponseEntry = {

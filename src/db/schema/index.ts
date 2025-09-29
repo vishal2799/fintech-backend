@@ -18,3 +18,6 @@ export * from './serviceOperators';
 export * from './userWallet';
 export * from './userWalletTransaction';
 export * from './fundRequest';
+export * from './serviceActions';
+export * from './commissionTemplates';
+export * from './serviceTemplates';

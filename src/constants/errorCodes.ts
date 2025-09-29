@@ -209,6 +209,15 @@ message: 'Permission already exists',
     code: 'OPERATOR_NOT_FOUND',
     status: 404,
   },
+
+    SERVICE_ACTION_NOT_FOUND: {
+      code: 'SERVICE_ACTION_NOT_FOUND',
+      message: 'Service action not found',
+    },
+    SERVICE_ACTION_CODE_EXISTS: {
+      code: 'SERVICE_ACTION_CODE_EXISTS',
+      message: 'Service action with this code already exists',
+    },
 };
 
 export type AppErrorCode = keyof typeof ERRORS;
