@@ -218,6 +218,11 @@ message: 'Permission already exists',
       code: 'SERVICE_ACTION_CODE_EXISTS',
       message: 'Service action with this code already exists',
     },
+
+    COMMISSION_TEMPLATE_NOT_FOUND: {
+      code: 'COMMISSION_TEMPLATE_NOT_FOUND',
+      message: 'Commission template not found',
+    },
 };
 
 export type AppErrorCode = keyof typeof ERRORS;

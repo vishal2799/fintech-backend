@@ -18,6 +18,7 @@ import bankRoutes from '../modules/companyBankAccounts/companyBankAccounts.route
 import { withAuditContext } from '../middlewares/auditContext';
 import userWalletRoutes from '../modules/user-wallet/user-wallet.routes';
 import serviceActionsRoutes from '../modules/serviceActions/serviceActions.routes';
+import commissionTemplatesRoutes from '../modules/commissionTemplates/commissionTemplates.routes';
 
 const router = Router()
 
@@ -39,5 +40,6 @@ router.use('/wl-admin/distributors', dRoutes)
 router.use('/wl-admin/retailers', rRoutes)
 router.use('/service-actions', serviceActionsRoutes);
 router.use('/logs', withAuditContext('AUDIT_LOGS', 'Audit Log'), logRoutes)
+router.use('/commission-templates', commissionTemplatesRoutes);
 
 export default router
