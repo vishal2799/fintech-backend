@@ -24,6 +24,11 @@ export const ServiceTemplatesController = {
     return successHandler(res, { data: result, ...RESPONSE.SERVICE_TEMPLATE.FETCHED });
   }),
 
+  getDefault: asyncHandler(async (req, res) => {
+    const result = await ServiceTemplateService.getDefault();
+    return successHandler(res, { data: result, ...RESPONSE.SERVICE_TEMPLATE.FETCHED });
+  }),
+
   getAll2: asyncHandler(async (req, res) => {
     const { serviceActionId, templateId, isActive, page, limit } = req.validated;
     const result = await ServiceTemplateService.getAll2({ serviceActionId, templateId, isActive, page, limit });

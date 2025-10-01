@@ -23,6 +23,8 @@ router.post('/', validate(createServiceTemplateSchema), ServiceTemplatesControll
 
 router.get('/', ServiceTemplatesController.getAll);
 
+router.get('/default', ServiceTemplatesController.getDefault);
+
 // router.get('/', validate(listServiceTemplatesSchema, 'query'), ServiceTemplatesController.getAll2);
 
 router.get(

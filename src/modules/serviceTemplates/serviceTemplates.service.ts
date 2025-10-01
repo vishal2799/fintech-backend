@@ -276,6 +276,41 @@ export const ServiceTemplateService = {
     return results
   },
 
+  async getDefault() {
+    const results = await db
+      .select({
+        id: serviceTemplates.id,
+        serviceActionId: serviceTemplates.serviceActionId,
+        templateId: serviceTemplates.templateId,
+        isDefault: serviceTemplates.isDefault,
+        isActive: serviceTemplates.isActive,
+        createdAt: serviceTemplates.createdAt,
+        updatedAt: serviceTemplates.updatedAt,
+        serviceAction: {
+          id: serviceActions.id,
+          name: serviceActions.name,
+          code: serviceActions.code,
+        },
+        template: {
+          id: commissionTemplates.id,
+          name: commissionTemplates.name,
+          hasCommission: commissionTemplates.hasCommission,
+          commissionType: commissionTemplates.commissionType,
+          commissionValue: commissionTemplates.commissionValue,
+          hasFee: commissionTemplates.hasFee,
+          feeType: commissionTemplates.feeType,
+          feeValue: commissionTemplates.feeValue,
+        },
+      })
+      .from(serviceTemplates)
+      .where(eq(serviceTemplates.isDefault, true))
+      .innerJoin(serviceActions, eq(serviceTemplates.serviceActionId, serviceActions.id))
+      .innerJoin(commissionTemplates, eq(serviceTemplates.templateId, commissionTemplates.id))
+      .orderBy(serviceTemplates.createdAt);
+
+    return results
+  },
+
   async update(id: string, data: UpdateServiceTemplateData) {
     const existing = await this.getById(id);
 
