@@ -19,6 +19,8 @@ import { withAuditContext } from '../middlewares/auditContext';
 import userWalletRoutes from '../modules/user-wallet/user-wallet.routes';
 import serviceActionsRoutes from '../modules/serviceActions/serviceActions.routes';
 import commissionTemplatesRoutes from '../modules/commissionTemplates/commissionTemplates.routes';
+import serviceTemplatesRoutes from '../modules/serviceTemplates/serviceTemplates.routes';
+
 
 const router = Router()
 
@@ -41,5 +43,6 @@ router.use('/wl-admin/retailers', rRoutes)
 router.use('/service-actions', serviceActionsRoutes);
 router.use('/logs', withAuditContext('AUDIT_LOGS', 'Audit Log'), logRoutes)
 router.use('/commission-templates', commissionTemplatesRoutes);
+router.use('/service-templates', serviceTemplatesRoutes);
 
 export default router

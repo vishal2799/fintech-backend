@@ -203,6 +203,26 @@ SERVICE_ACTION: {
       message: 'Commission template deleted successfully',
     },
   },
+
+  SERVICE_TEMPLATE: {
+    CREATED: {
+      statusCode: 201,
+      message: 'Service template created successfully',
+    },
+    FETCHED: {
+      statusCode: 200,
+      message: 'Service template(s) fetched successfully',
+    },
+    UPDATED: {
+      statusCode: 200,
+      message: 'Service template updated successfully',
+    },
+    DELETED: {
+      statusCode: 200,
+      message: 'Service template deleted successfully',
+    },
+  },
+
 };
 
 export type ResponseEntry = {
