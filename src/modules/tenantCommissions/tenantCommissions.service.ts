@@ -4,6 +4,7 @@ import { db } from '../../db';
 import { AppError } from '../../utils/AppError';
 import { tenantCommissions } from '../../db/schema';
 import { ERRORS } from '../../constants/errorCodes2';
+import { ServiceTemplateService } from '../serviceTemplates/serviceTemplates.service';
 
 // Default roles we always want in commission splits
 const DEFAULT_ROLES = [
@@ -16,6 +17,7 @@ const DEFAULT_ROLES = [
 export const TenantCommissionsService = {
 
     getByServiceTemplate: async (tenantId: string, serviceTemplateId: string) => {
+    const serviceTemplate = await ServiceTemplateService.getById(serviceTemplateId);
     const records = await db
       .select()
       .from(tenantCommissions)
@@ -27,6 +29,7 @@ export const TenantCommissionsService = {
         serviceTemplateId,
         tenantId,
         splits: DEFAULT_ROLES,
+        serviceTemplate
       };
     }
 
@@ -48,6 +51,7 @@ export const TenantCommissionsService = {
       serviceTemplateId,
       tenantId,
       splits: mergedSplits,
+      serviceTemplate
     };
   },
 
