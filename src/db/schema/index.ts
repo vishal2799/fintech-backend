@@ -21,3 +21,5 @@ export * from './fundRequest';
 export * from './serviceActions';
 export * from './commissionTemplates';
 export * from './serviceTemplates';
+export * from './userLevels';
+export * from './tenantCommissions';

@@ -20,6 +20,7 @@ import userWalletRoutes from '../modules/user-wallet/user-wallet.routes';
 import serviceActionsRoutes from '../modules/serviceActions/serviceActions.routes';
 import commissionTemplatesRoutes from '../modules/commissionTemplates/commissionTemplates.routes';
 import serviceTemplatesRoutes from '../modules/serviceTemplates/serviceTemplates.routes';
+import tenantCommissionsRoutes from '../modules/tenantCommissions/tenantCommissions.routes';
 
 
 const router = Router()
@@ -44,5 +45,6 @@ router.use('/service-actions', serviceActionsRoutes);
 router.use('/logs', withAuditContext('AUDIT_LOGS', 'Audit Log'), logRoutes)
 router.use('/commission-templates', commissionTemplatesRoutes);
 router.use('/service-templates', serviceTemplatesRoutes);
+router.use('/tenant-commissions', tenantCommissionsRoutes);
 
 export default router

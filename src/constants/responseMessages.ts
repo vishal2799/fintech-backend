@@ -223,6 +223,25 @@ SERVICE_ACTION: {
     },
   },
 
+  TENANT_COMMISSION: {
+    CREATED: {
+      statusCode: 201,
+      message: 'Service template created successfully',
+    },
+    FETCHED: {
+      statusCode: 200,
+      message: 'Tenant commission fetched successfully',
+    },
+    UPDATED: {
+      statusCode: 200,
+      message: 'Tenant commission updated successfully',
+    },
+    DELETED: {
+      statusCode: 200,
+      message: 'Service template deleted successfully',
+    },
+  },
+
 };
 
 export type ResponseEntry = {
